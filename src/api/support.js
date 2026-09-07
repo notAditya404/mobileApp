@@ -18,13 +18,40 @@ const MOCK_SUPPORT_REQUESTS = [
   },
 ];
 
+// "details" wala text card tap karne par expanded view mein dikhta hai
 const MOCK_RESOURCES = [
-  { title: "Rest & Recovery", description: "Tips to improve rest during irregular duties.", icon: "leaf-outline", color: "#16a34a" },
-  { title: "Sleep Better", description: "Guidance for quality sleep in tough schedules.", icon: "moon-outline", color: "#7c3aed" },
-  { title: "Managing Stress", description: "Simple techniques to stay calm and focused.", icon: "pulse-outline", color: "#db2777" },
-  { title: "Stay Active", description: "Easy workouts to keep your body strong.", icon: "barbell-outline", color: "#ea580c" },
-  { title: "Stay Connected", description: "Strengthen bonds even while away.", icon: "people-outline", color: "#2563eb" },
-  { title: "Family Support", description: "Resources for you and your family.", icon: "home-outline", color: "#0891b2" },
+  {
+    title: "Rest & Recovery",
+    description: "Tips to improve rest during irregular duties.",
+    details:
+      "Recovery is as important as duty. Try to get at least 7-8 hours of rest between long shifts, take short breaks during the day, and avoid back-to-back night duties when possible. Even 20-30 minutes of rest can help reset your focus and energy.",
+    icon: "leaf-outline",
+    color: "#16a34a",
+  },
+  {
+    title: "Sleep Better",
+    description: "Guidance for quality sleep in tough schedules.",
+    details:
+      "Quality sleep matters more than quantity. Keep a consistent sleep schedule even on irregular duty days, avoid screens 30 minutes before sleeping, keep your sleeping area dark and cool, and avoid caffeine close to bedtime.",
+    icon: "moon-outline",
+    color: "#7c3aed",
+  },
+  {
+    title: "Managing Stress",
+    description: "Simple techniques to stay calm and focused.",
+    details:
+      "Simple breathing exercises (like the 4-7-8 technique), short walks, and talking to a trusted colleague can help reduce stress in the moment. If stress persists for more than a few days, don't hesitate to request support through this app.",
+    icon: "pulse-outline",
+    color: "#db2777",
+  },
+  {
+    title: "Stay Active",
+    description: "Easy workouts to keep your body strong.",
+    details:
+      "Even 15-20 minutes of physical activity - stretching, a brisk walk, or basic bodyweight exercises - can significantly improve mood and reduce fatigue, especially during long deployments with limited access to a gym.",
+    icon: "barbell-outline",
+    color: "#ea580c",
+  },
 ];
 
 // Backend endpoint (jab ready ho): GET /personnel/me/support-requests
