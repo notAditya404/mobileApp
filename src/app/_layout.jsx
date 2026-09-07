@@ -1,25 +1,12 @@
-import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
-import { Stack, useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
+import { Stack } from "expo-router";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 import "../global.css";
 
-export default function Layout() {
-  const router = useRouter();
-  const [checkedAuth, setCheckedAuth] = useState(false);
+function RootNavigator() {
+  const { isLoggedIn, isLoading } = useAuth();
 
-  // App khulte hi check karo ki login token saved hai ya nahi.
-  // Agar nahi hai, toh seedha Welcome/Login screen par bhej do.
-  useEffect(() => {
-    SecureStore.getItemAsync("authToken").then((token) => {
-      if (!token) {
-        router.replace("/welcome");
-      }
-      setCheckedAuth(true);
-    });
-  }, []);
-
-  if (!checkedAuth) {
+  if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#2563eb" />
@@ -27,5 +14,34 @@ export default function Layout() {
     );
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      {/* Login hone ke baad hi yeh screens reachable hain. Jab isLoggedIn
+          false ho jaata hai (logout), yeh poori group navigation history
+          se hat jaati hai - "back" dabane se yeh wapas nahi aatin. */}
+      <Stack.Protected guard={isLoggedIn}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="change-password" />
+        <Stack.Screen name="notification-settings" />
+        <Stack.Screen name="privacy-settings" />
+      </Stack.Protected>
+
+      {/* Login se pehle hi yeh screens reachable hain. Login/Signup
+          success hote hi yeh group hat jaati hai, isliye Home se "back"
+          dabane se Welcome/Login wapas nahi aata. */}
+      <Stack.Protected guard={!isLoggedIn}>
+        <Stack.Screen name="welcome" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="signup" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
+
+export default function Layout() {
+  return (
+    <AuthProvider>
+      <RootNavigator />
+    </AuthProvider>
+  );
 }

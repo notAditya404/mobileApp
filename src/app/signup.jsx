@@ -12,8 +12,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import { signup } from "@/api/auth";
+import { signup as signupApi } from "@/api/auth";
+import { useAuth } from "@/context/AuthContext";
 
 const TOTAL_STEPS = 3;
 const STEP_TITLES = {
@@ -68,6 +68,7 @@ const SURVEY_QUESTIONS = [
 
 export default function Signup() {
   const router = useRouter();
+  const { login } = useAuth();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -132,7 +133,7 @@ export default function Signup() {
 
     setIsSubmitting(true);
     try {
-      const { token } = await signup({
+      const { token } = await signupApi({
         fullName,
         email,
         rank,
@@ -142,8 +143,7 @@ export default function Signup() {
         ...surveyAnswers,
         password,
       });
-      await SecureStore.setItemAsync("authToken", token);
-      router.replace("/");
+      await login(token);
     } catch (error) {
       Alert.alert("Signup failed", "Something went wrong, please try again.");
     } finally {

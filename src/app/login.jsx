@@ -4,11 +4,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import { login } from "@/api/auth";
+import { login as loginApi } from "@/api/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Login() {
   const router = useRouter();
+  const { login } = useAuth();
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,11 +23,11 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      const { token } = await login(userId, password);
-      // Token ko secure storage mein save karte hain taaki app dobara
-      // khulne par user ko login karne ki zaroorat na pade
-      await SecureStore.setItemAsync("authToken", token);
-      router.replace("/");
+      const { token } = await loginApi(userId, password);
+      // AuthContext token save karke isLoggedIn true kar deta hai -
+      // Stack.Protected khud hi Home par le jata hai, koi router call
+      // nahi chahiye (aur na hi Welcome/Login history mein rehte hain)
+      await login(token);
     } catch (error) {
       Alert.alert("Login failed", "Please check your User ID and Password.");
     } finally {

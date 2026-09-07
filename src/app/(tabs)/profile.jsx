@@ -3,12 +3,13 @@ import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { getProfile } from "@/api/profile";
+import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/Skeleton";
 
 export default function Profile() {
   const router = useRouter();
+  const { logout } = useAuth();
   const [profile, setProfile] = useState(null);
 
   useEffect(() => {
@@ -21,10 +22,9 @@ export default function Profile() {
       {
         text: "Logout",
         style: "destructive",
-        onPress: async () => {
-          await SecureStore.deleteItemAsync("authToken");
-          router.replace("/welcome");
-        },
+        // AuthContext token clear karke isLoggedIn false kar deta hai -
+        // Stack.Protected khud Welcome par le jata hai
+        onPress: logout,
       },
     ]);
   }
