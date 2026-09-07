@@ -27,7 +27,7 @@ export async function login(userId, password) {
 }
 
 // Backend endpoint (jab ready ho): POST /auth/signup
-// Body: { fullName, employeeId, rank, organization, mobile, otp, password }
+// Body: { fullName, email, rank, otp, locationAccess, password }
 // Response: { token: string, personnel: {...} }
 export async function signup(signupData) {
   if (USE_MOCK_DATA) {
@@ -41,14 +41,14 @@ export async function signup(signupData) {
 }
 
 // Backend endpoint (jab ready ho): POST /auth/send-otp
-// Body: { mobile: string }
-export async function sendOtp(mobile) {
+// Body: { email: string }
+export async function sendOtp(email) {
   if (USE_MOCK_DATA) {
     return { sent: true };
   }
 
   return apiRequest("/auth/send-otp", {
     method: "POST",
-    body: JSON.stringify({ mobile }),
+    body: JSON.stringify({ email }),
   });
 }

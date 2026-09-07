@@ -7,6 +7,8 @@ import {
   Alert,
   ScrollView,
   Switch,
+  Modal,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,6 +24,21 @@ const STEP_TITLES = {
   4: "Set Password",
 };
 
+// Rank dropdown ke options - CAPF/Armed Forces ke common ranks
+const RANK_OPTIONS = [
+  "Constable",
+  "Head Constable",
+  "Naik",
+  "Lance Naik",
+  "Havildar",
+  "Assistant Sub Inspector",
+  "Sub Inspector",
+  "Inspector",
+  "Subedar",
+  "Subedar Major",
+  "Other",
+];
+
 export default function Signup() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -29,10 +46,9 @@ export default function Signup() {
 
   // Step 1 - Personal Details
   const [fullName, setFullName] = useState("");
-  const [employeeId, setEmployeeId] = useState("");
+  const [email, setEmail] = useState("");
   const [rank, setRank] = useState("");
-  const [organization, setOrganization] = useState("");
-  const [mobile, setMobile] = useState("");
+  const [isRankPickerVisible, setIsRankPickerVisible] = useState(false);
 
   // Step 2 - OTP
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -65,11 +81,11 @@ export default function Signup() {
   }
 
   async function handleStep1Next() {
-    if (!fullName || !employeeId || !rank || !organization || !mobile) {
+    if (!fullName || !email || !rank) {
       Alert.alert("Missing details", "Please fill all the required fields.");
       return;
     }
-    await sendOtp(mobile);
+    await sendOtp(email);
     setSecondsLeft(58);
     setStep(2);
   }
@@ -114,10 +130,8 @@ export default function Signup() {
     try {
       const { token } = await signup({
         fullName,
-        employeeId,
+        email,
         rank,
-        organization,
-        mobile,
         otp: otp.join(""),
         locationAccess,
         password,
@@ -152,20 +166,41 @@ export default function Signup() {
         {step === 1 && (
           <View className="mt-4">
             <Field label="Full Name" icon="person-outline" value={fullName} onChangeText={setFullName} placeholder="Enter your full name" />
-            <Field label="User ID / Employee ID" icon="person-outline" value={employeeId} onChangeText={setEmployeeId} placeholder="Enter your service/employee ID" />
-            <Field label="Rank / Designation" icon="ribbon-outline" value={rank} onChangeText={setRank} placeholder="Select your rank/designation" />
-            <Field label="Organization / Force" icon="shield-checkmark-outline" value={organization} onChangeText={setOrganization} placeholder="Select your organization" />
-            <Field label="Mobile Number" icon="call-outline" value={mobile} onChangeText={setMobile} placeholder="Enter your mobile number" keyboardType="phone-pad" />
+            <Field label="Email" icon="mail-outline" value={email} onChangeText={setEmail} placeholder="Enter your email" keyboardType="email-address" autoCapitalize="none" />
+
+            <View className="mb-4">
+              <Text className="text-slate-600 text-sm mb-1">Rank</Text>
+              <Pressable
+                className="flex-row items-center border border-slate-300 rounded-xl px-3"
+                onPress={() => setIsRankPickerVisible(true)}
+              >
+                <Ionicons name="ribbon-outline" size={18} color="#64748b" />
+                <Text className={`flex-1 py-3 px-2 ${rank ? "text-slate-900" : "text-slate-400"}`}>
+                  {rank || "Select your rank"}
+                </Text>
+                <Ionicons name="chevron-down" size={18} color="#64748b" />
+              </Pressable>
+            </View>
 
             <InfoBanner text="Make sure your details match your official records." />
             <PrimaryButton label="Next" onPress={handleStep1Next} />
+
+            <RankPickerModal
+              visible={isRankPickerVisible}
+              selectedRank={rank}
+              onSelect={(value) => {
+                setRank(value);
+                setIsRankPickerVisible(false);
+              }}
+              onClose={() => setIsRankPickerVisible(false)}
+            />
           </View>
         )}
 
         {step === 2 && (
           <View className="mt-4">
             <Text className="text-slate-500 text-sm mb-4">
-              Enter the OTP sent to {mobile || "your mobile number"}
+              Enter the OTP sent to {email || "your email"}
             </Text>
 
             <View className="flex-row justify-between mb-3">
@@ -184,7 +219,7 @@ export default function Signup() {
 
             <View className="flex-row justify-between items-center mb-6">
               <Text className="text-slate-400 text-xs">
-                OTP sent to your mobile number
+                OTP sent to your email
               </Text>
               <Text className="text-blue-700 text-xs font-semibold">
                 {secondsLeft > 0 ? `00:${String(secondsLeft).padStart(2, "0")}` : "Expired"}
@@ -194,7 +229,7 @@ export default function Signup() {
             <Pressable
               onPress={() => {
                 setSecondsLeft(58);
-                sendOtp(mobile);
+                sendOtp(email);
               }}
               className="mb-4"
             >
@@ -350,6 +385,39 @@ function PrimaryButton({ label, onPress, disabled, icon }) {
       <Text className="text-white text-base font-semibold">{label}</Text>
       <Ionicons name={icon ?? "arrow-forward"} size={18} color="white" />
     </Pressable>
+  );
+}
+
+// Rank select karne ke liye chhota bottom-sheet jaisa modal
+function RankPickerModal({ visible, selectedRank, onSelect, onClose }) {
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable className="flex-1 bg-black/40 justify-end" onPress={onClose}>
+        <Pressable className="bg-white rounded-t-2xl max-h-[70%]">
+          <View className="flex-row items-center justify-between p-4 border-b border-slate-100">
+            <Text className="text-lg font-bold text-slate-900">Select Rank</Text>
+            <Pressable onPress={onClose}>
+              <Ionicons name="close" size={22} color="#64748b" />
+            </Pressable>
+          </View>
+          <FlatList
+            data={RANK_OPTIONS}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => (
+              <Pressable
+                className="flex-row items-center justify-between px-5 py-4 border-b border-slate-50"
+                onPress={() => onSelect(item)}
+              >
+                <Text className="text-slate-800">{item}</Text>
+                {selectedRank === item && (
+                  <Ionicons name="checkmark" size={18} color="#1d4ed8" />
+                )}
+              </Pressable>
+            )}
+          />
+        </Pressable>
+      </Pressable>
+    </Modal>
   );
 }
 
