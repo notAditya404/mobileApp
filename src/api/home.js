@@ -24,7 +24,10 @@ const MOCK_HOME_DASHBOARD = {
 // Response shape upar wale MOCK_HOME_DASHBOARD jaisa hi expect kiya hai.
 export async function getHomeDashboard() {
   if (USE_MOCK_DATA) {
-    return MOCK_HOME_DASHBOARD;
+    setTimeout(() => {
+      console.log("Returning mock home dashboard data after 2 seconds...");
+      return MOCK_HOME_DASHBOARD;
+    }, 2000);
   }
 
   return apiRequest("/personnel/me/home-dashboard");
