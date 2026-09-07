@@ -1,13 +1,16 @@
-import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
 const DAILY_REMINDER_ID = "daily-check-in-reminder";
 
-// Expo Go (Android, SDK 53+) is-poore module ke kuch calls par error
-// throw kar deta hai - isliye har jagah try/catch lagaya hai taaki app
-// crash na ho, sirf reminder feature us case mein silently skip ho jaye.
+// "import" statements Metro/Babel dwara hamesha module ke sabse upar
+// hoist ho jaate hain - agar expo-notifications khud apne load hote
+// waqt Android+Expo Go par throw karta hai, toh woh throw kisi bhi
+// try/catch se pehle hi ho jayega. Isliye yahan "require" use kiya hai
+// (jo hoist nahi hota) taaki hum usse try/catch mein safely wrap kar
+// sakein.
+let Notifications = null;
 try {
-  // App foreground mein ho tab bhi notification banner + sound dikhe
+  Notifications = require("expo-notifications");
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
@@ -16,12 +19,14 @@ try {
     }),
   });
 } catch (error) {
-  console.log("Notification handler setup skipped:", error.message);
+  console.log("expo-notifications unavailable on this runtime:", error.message);
 }
 
 // User se notification permission maangta hai (iOS mein zaroori,
 // Android 13+ mein bhi zaroori hai)
 export async function requestNotificationPermission() {
+  if (!Notifications) return false;
+
   try {
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
@@ -41,6 +46,8 @@ export async function requestNotificationPermission() {
 // Har roz shaam 8 baje local reminder - isko backend ki zaroorat nahi,
 // phone khud hi schedule karke rakhta hai
 export async function scheduleDailyCheckInReminder() {
+  if (!Notifications) return;
+
   try {
     await Notifications.cancelScheduledNotificationAsync(DAILY_REMINDER_ID).catch(() => {});
     await Notifications.scheduleNotificationAsync({
@@ -61,6 +68,7 @@ export async function scheduleDailyCheckInReminder() {
 }
 
 export async function cancelDailyCheckInReminder() {
+  if (!Notifications) return;
   await Notifications.cancelScheduledNotificationAsync(DAILY_REMINDER_ID).catch(() => {});
 }
 
