@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { getHomeDashboard } from "@/api/home";
 
 export default function Home() {
+  const router = useRouter();
   const [data, setData] = useState(null);
 
   // Screen khulte hi dashboard data load karo (abhi mock, baad mein backend)
@@ -101,11 +103,13 @@ export default function Home() {
             icon="headset-outline"
             title="Request Support"
             subtitle="Talk to a welfare officer or counselor"
+            onPress={() => router.push("/(tabs)/support")}
           />
           <QuickAccessRow
             icon="leaf-outline"
             title="Wellness Resources"
             subtitle="Guides and tools for better recovery"
+            onPress={() => router.push("/(tabs)/support")}
           />
         </View>
       </ScrollView>
@@ -133,9 +137,12 @@ function StatCard({ icon, label, value, note, color }) {
 }
 
 // Quick Access section ki dono rows isi se banti hain
-function QuickAccessRow({ icon, title, subtitle }) {
+function QuickAccessRow({ icon, title, subtitle, onPress }) {
   return (
-    <View className="flex-row items-center bg-white rounded-2xl p-4 shadow-sm">
+    <Pressable
+      className="flex-row items-center bg-white rounded-2xl p-4 shadow-sm"
+      onPress={onPress}
+    >
       <View className="w-10 h-10 rounded-full bg-blue-50 items-center justify-center mr-3">
         <Ionicons name={icon} size={20} color="#2563eb" />
       </View>
@@ -144,6 +151,6 @@ function QuickAccessRow({ icon, title, subtitle }) {
         <Text className="text-slate-500 text-sm">{subtitle}</Text>
       </View>
       <Ionicons name="chevron-forward" size={18} color="#94a3b8" />
-    </View>
+    </Pressable>
   );
 }
