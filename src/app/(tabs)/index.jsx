@@ -5,6 +5,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { getHomeDashboard } from "@/api/home";
 
+// Device ke current time ke hisaab se greeting - subah/dopahar/shaam
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good Morning,";
+  if (hour < 17) return "Good Afternoon,";
+  return "Good Evening,";
+}
+
 export default function Home() {
   const router = useRouter();
   const [data, setData] = useState(null);
@@ -30,7 +38,7 @@ export default function Home() {
         {/* Header: greeting + notification bell */}
         <View className="flex-row items-start justify-between mt-2">
           <View>
-            <Text className="text-slate-500 text-base">Good Morning,</Text>
+            <Text className="text-slate-500 text-base">{getGreeting()}</Text>
             <Text className="text-slate-900 text-2xl font-bold">
               {personnel.fullName}
             </Text>
