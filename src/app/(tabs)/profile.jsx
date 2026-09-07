@@ -1,31 +1,19 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, Alert, Modal } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { getProfile } from "@/api/profile";
-import { getLanguage, setLanguage as saveLanguage } from "@/api/settings";
 import { Skeleton } from "@/components/Skeleton";
-
-const LANGUAGE_OPTIONS = ["English", "Hindi"];
 
 export default function Profile() {
   const router = useRouter();
   const [profile, setProfile] = useState(null);
-  const [language, setLanguage] = useState("English");
-  const [isLanguagePickerVisible, setIsLanguagePickerVisible] = useState(false);
 
   useEffect(() => {
     getProfile().then(setProfile);
-    getLanguage().then(setLanguage);
   }, []);
-
-  function handleSelectLanguage(value) {
-    setLanguage(value);
-    saveLanguage(value);
-    setIsLanguagePickerVisible(false);
-  }
 
   function handleLogout() {
     Alert.alert("Logout", "Are you sure you want to sign out?", [
@@ -130,14 +118,8 @@ export default function Profile() {
           <SettingsRow
             icon="shield-checkmark-outline"
             label="Privacy & Data Settings"
-            onPress={() => router.push("/privacy-settings")}
-          />
-          <SettingsRow
-            icon="language-outline"
-            label="Language"
-            value={language}
             last
-            onPress={() => setIsLanguagePickerVisible(true)}
+            onPress={() => router.push("/privacy-settings")}
           />
         </View>
 
@@ -156,38 +138,6 @@ export default function Profile() {
           <Ionicons name="chevron-forward" size={18} color="#dc2626" />
         </Pressable>
       </ScrollView>
-
-      {/* Language picker */}
-      <Modal
-        visible={isLanguagePickerVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setIsLanguagePickerVisible(false)}
-      >
-        <Pressable
-          className="flex-1 bg-black/40 justify-end"
-          onPress={() => setIsLanguagePickerVisible(false)}
-        >
-          <Pressable className="bg-white rounded-t-2xl" onPress={() => {}}>
-            <View className="flex-row items-center justify-between p-4 border-b border-slate-100">
-              <Text className="text-lg font-bold text-slate-900">Select Language</Text>
-              <Pressable onPress={() => setIsLanguagePickerVisible(false)}>
-                <Ionicons name="close" size={22} color="#64748b" />
-              </Pressable>
-            </View>
-            {LANGUAGE_OPTIONS.map((option) => (
-              <Pressable
-                key={option}
-                className="flex-row items-center justify-between px-5 py-4 border-b border-slate-50"
-                onPress={() => handleSelectLanguage(option)}
-              >
-                <Text className="text-slate-800">{option}</Text>
-                {language === option && <Ionicons name="checkmark" size={18} color="#1d4ed8" />}
-              </Pressable>
-            ))}
-          </Pressable>
-        </Pressable>
-      </Modal>
     </SafeAreaView>
   );
 }

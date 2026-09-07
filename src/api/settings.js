@@ -4,7 +4,6 @@ import { USE_MOCK_DATA } from "./config";
 
 const NOTIFICATION_SETTINGS_KEY = "notificationSettings";
 const PRIVACY_SETTINGS_KEY = "privacySettings";
-const LANGUAGE_KEY = "language";
 
 const DEFAULT_NOTIFICATION_SETTINGS = {
   dailyCheckInReminder: true,
@@ -61,14 +60,4 @@ export async function updatePrivacySettings(settings) {
     method: "PUT",
     body: JSON.stringify(settings),
   });
-}
-
-// Language sirf local preference hai abhi (app translation implement nahi hai)
-export async function getLanguage() {
-  const stored = await SecureStore.getItemAsync(LANGUAGE_KEY);
-  return stored || "English";
-}
-
-export async function setLanguage(language) {
-  await SecureStore.setItemAsync(LANGUAGE_KEY, language);
 }
