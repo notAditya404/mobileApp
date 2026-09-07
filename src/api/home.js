@@ -24,12 +24,7 @@ const MOCK_HOME_DASHBOARD = {
 // Response shape upar wale MOCK_HOME_DASHBOARD jaisa hi expect kiya hai.
 export async function getHomeDashboard() {
   if (USE_MOCK_DATA) {
-    // setTimeout ke andar "return" sirf uss callback se return hota hai,
-    // getHomeDashboard() se nahi - isliye ek Promise mein wrap karna
-    // zaroori hai taaki await isko sahi se pakad sake.
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(MOCK_HOME_DASHBOARD), 2000);
-    });
+    return MOCK_HOME_DASHBOARD;
   }
 
   return apiRequest("/personnel/me/home-dashboard");
