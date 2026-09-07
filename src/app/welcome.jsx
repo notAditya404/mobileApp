@@ -11,7 +11,7 @@ export default function Welcome() {
   return (
     <View className="flex-1 bg-white">
       {/* Background photo with logo/tagline overlaid on top */}
-      <View style={{ height: "52%" }} className="relative">
+      <View style={{ height: "62%" }} className="relative">
         <Image
           source={require("@/assets/images/welcome-soldier.jpg")}
           style={StyleSheet.absoluteFill}
@@ -19,12 +19,14 @@ export default function Welcome() {
         />
         <View className="absolute inset-0 bg-black/20" />
         <SafeAreaView className="flex-1 items-center pt-6">
-          <Image
-            source={require("@/assets/images/logo.png")}
-            style={{ width: 76, height: 76 }}
-            contentFit="contain"
-          />
-          <Text className="text-3xl font-extrabold text-white tracking-widest mt-2">
+          <View className="bg-white/95 rounded-2xl p-2.5 shadow-sm">
+            <Image
+              source={require("@/assets/images/logo.png")}
+              style={{ width: 44, height: 44 }}
+              contentFit="contain"
+            />
+          </View>
+          <Text className="text-3xl font-extrabold text-white tracking-widest mt-3">
             MANOVA
           </Text>
           <Text className="text-white/90 text-center text-base mt-2">
@@ -34,7 +36,7 @@ export default function Welcome() {
       </View>
 
       {/* Feature row + CTA */}
-      <View className="flex-1 bg-white rounded-t-3xl -mt-6 px-8 pt-8 justify-between pb-6">
+      <View className="bg-white rounded-t-3xl -mt-6 px-8 pt-8 pb-6">
         <View className="flex-row justify-between">
           <FeatureItem icon="pulse-outline" title="Monitor" subtitle="Well-being" />
           <FeatureItem icon="shield-checkmark-outline" title="Predict" subtitle="Risks" />

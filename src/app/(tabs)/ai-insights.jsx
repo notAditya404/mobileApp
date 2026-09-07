@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, ActivityIndicator, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { getAiInsights } from "@/api/aiInsights";
 
 export default function AiInsights() {
@@ -41,12 +40,6 @@ export default function AiInsights() {
             <Text className="text-violet-700 text-xs">Secure & private</Text>
           </View>
         </View>
-
-        <Image
-          source={require("@/assets/images/brain-graphic.png")}
-          style={{ width: 90, height: 90, alignSelf: "center", marginTop: -8 }}
-          contentFit="contain"
-        />
 
         {/* AI summary card */}
         <View className="bg-[#1e1b4b] rounded-2xl p-5 mt-5">

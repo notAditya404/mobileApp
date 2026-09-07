@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { getSupportRequests, getWellnessResources, createSupportRequest } from "@/api/support";
 
 const STATUS_COLORS = {
@@ -63,28 +62,21 @@ export default function Support() {
         </View>
 
         {/* Need support card */}
-        <View className="bg-violet-50 rounded-2xl p-5 mt-5 flex-row items-center">
-          <View className="flex-1 pr-3">
-            <View className="w-11 h-11 rounded-full bg-violet-100 items-center justify-center mb-3">
-              <Ionicons name="headset-outline" size={22} color="#7c3aed" />
-            </View>
-            <Text className="text-slate-900 font-bold text-lg">Need Support?</Text>
-            <Text className="text-slate-500 text-sm mt-1 mb-4">
-              Talk to a welfare officer or counselor. You are not alone.
-            </Text>
-            <Pressable
-              className="bg-violet-700 rounded-xl py-3 px-5 self-start flex-row items-center gap-2"
-              onPress={handleRequestSupport}
-            >
-              <Text className="text-white font-semibold">Request Support</Text>
-              <Ionicons name="chevron-forward" size={16} color="white" />
-            </Pressable>
+        <View className="bg-violet-50 rounded-2xl p-5 mt-5">
+          <View className="w-11 h-11 rounded-full bg-violet-100 items-center justify-center mb-3">
+            <Ionicons name="headset-outline" size={22} color="#7c3aed" />
           </View>
-          <Image
-            source={require("@/assets/images/hands-heart.png")}
-            style={{ width: 90, height: 90 }}
-            contentFit="contain"
-          />
+          <Text className="text-slate-900 font-bold text-lg">Need Support?</Text>
+          <Text className="text-slate-500 text-sm mt-1 mb-4">
+            Talk to a welfare officer or counselor. You are not alone.
+          </Text>
+          <Pressable
+            className="bg-violet-700 rounded-xl py-3 px-5 self-start flex-row items-center gap-2"
+            onPress={handleRequestSupport}
+          >
+            <Text className="text-white font-semibold">Request Support</Text>
+            <Ionicons name="chevron-forward" size={16} color="white" />
+          </Pressable>
         </View>
 
         {/* My requests */}

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, ActivityIndicator, Pressable, Modal, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { getHomeDashboard } from "@/api/home";
 import { getTodayCheckInStatus, submitCheckIn } from "@/api/selfAssessment";
@@ -181,11 +180,9 @@ export default function Home() {
 
         {/* Motivational quote card */}
         <View className="flex-row items-center bg-white rounded-2xl p-4 mt-6 shadow-sm">
-          <Image
-            source={require("@/assets/images/mountain-flag.png")}
-            style={{ width: 44, height: 44 }}
-            contentFit="contain"
-          />
+          <View className="w-11 h-11 rounded-full bg-amber-50 items-center justify-center">
+            <Ionicons name="flag-outline" size={20} color="#d97706" />
+          </View>
           <View className="flex-1 px-3">
             <Text className="text-slate-700 text-sm italic">
               "A strong force begins with strong individuals."
