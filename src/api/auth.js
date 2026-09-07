@@ -25,3 +25,30 @@ export async function login(userId, password) {
     body: JSON.stringify({ userId, password }),
   });
 }
+
+// Backend endpoint (jab ready ho): POST /auth/signup
+// Body: { fullName, employeeId, rank, organization, mobile, otp, password }
+// Response: { token: string, personnel: {...} }
+export async function signup(signupData) {
+  if (USE_MOCK_DATA) {
+    return MOCK_LOGIN_RESPONSE;
+  }
+
+  return apiRequest("/auth/signup", {
+    method: "POST",
+    body: JSON.stringify(signupData),
+  });
+}
+
+// Backend endpoint (jab ready ho): POST /auth/send-otp
+// Body: { mobile: string }
+export async function sendOtp(mobile) {
+  if (USE_MOCK_DATA) {
+    return { sent: true };
+  }
+
+  return apiRequest("/auth/send-otp", {
+    method: "POST",
+    body: JSON.stringify({ mobile }),
+  });
+}
