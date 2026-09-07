@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, ActivityIndicator, Pressable, Modal, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { getHomeDashboard } from "@/api/home";
 import { getTodayCheckInStatus, submitCheckIn } from "@/api/selfAssessment";
@@ -27,6 +28,7 @@ export default function Home() {
   const router = useRouter();
   const [data, setData] = useState(null);
   const [checkedInToday, setCheckedInToday] = useState(true);
+  const [isQuoteLiked, setIsQuoteLiked] = useState(false);
 
   const [isCheckInVisible, setIsCheckInVisible] = useState(false);
   const [mood, setMood] = useState("");
@@ -175,6 +177,28 @@ export default function Home() {
             subtitle="Guides and tools for better recovery"
             onPress={() => router.push("/(tabs)/wellness")}
           />
+        </View>
+
+        {/* Motivational quote card */}
+        <View className="flex-row items-center bg-white rounded-2xl p-4 mt-6 shadow-sm">
+          <Image
+            source={require("@/assets/images/mountain-flag.png")}
+            style={{ width: 44, height: 44 }}
+            contentFit="contain"
+          />
+          <View className="flex-1 px-3">
+            <Text className="text-slate-700 text-sm italic">
+              "A strong force begins with strong individuals."
+            </Text>
+            <Text className="text-slate-400 text-xs mt-1">Take care. We've got your back.</Text>
+          </View>
+          <Pressable onPress={() => setIsQuoteLiked((liked) => !liked)}>
+            <Ionicons
+              name={isQuoteLiked ? "heart" : "heart-outline"}
+              size={20}
+              color={isQuoteLiked ? "#dc2626" : "#94a3b8"}
+            />
+          </Pressable>
         </View>
       </ScrollView>
 

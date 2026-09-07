@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Text, TextInput, Pressable, Alert, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { login } from "@/api/auth";
@@ -37,10 +38,12 @@ export default function Login() {
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView contentContainerClassName="flex-grow justify-center px-6 py-8">
         <View className="items-center mb-8">
-          <View className="w-16 h-16 rounded-full bg-blue-600 items-center justify-center mb-3">
-            <Ionicons name="shield-checkmark" size={32} color="white" />
-          </View>
-          <Text className="text-2xl font-bold text-slate-900">Welcome Back</Text>
+          <Image
+            source={require("@/assets/images/logo.png")}
+            style={{ width: 64, height: 64 }}
+            contentFit="contain"
+          />
+          <Text className="text-2xl font-bold text-slate-900 mt-3">Welcome Back</Text>
           <Text className="text-slate-500 mt-1">Login to continue</Text>
         </View>
 
