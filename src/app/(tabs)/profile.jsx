@@ -145,7 +145,7 @@ function SettingsRow({ icon, label, value, last }) {
   return (
     <Pressable
       className={`flex-row items-center justify-between p-4 ${last ? "" : "border-b border-slate-100"}`}
-      onPress={() => Alert.alert(label, "Yeh feature agle step mein banayenge.")}
+      onPress={() => Alert.alert(label, "This feature will be added in a future update.")}
     >
       <View className="flex-row items-center gap-2">
         <Ionicons name={icon} size={16} color="#334155" />

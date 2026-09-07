@@ -228,8 +228,8 @@ export default function Signup() {
         {step === 2 && (
           <View className="mt-4">
             <Text className="text-slate-500 text-sm mb-4">
-              Bas kuch quick sawaal, taaki hum aapke liye ek baseline wellness
-              profile bana sakein.
+              Just a few quick questions, so we can build a baseline wellness
+              profile for you.
             </Text>
 
             {SURVEY_QUESTIONS.map((q) => (
@@ -244,7 +244,7 @@ export default function Signup() {
               />
             ))}
 
-            <InfoBanner text="Yeh jawab confidential hain aur sirf aapki wellness samajhne ke liye use honge." />
+            <InfoBanner text="These answers are confidential and only used to understand your wellness." />
             <PrimaryButton label="Next" onPress={handleSurveyNext} />
           </View>
         )}

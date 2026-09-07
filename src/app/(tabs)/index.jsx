@@ -100,8 +100,8 @@ export default function Home() {
               <Ionicons name="happy-outline" size={20} color="white" />
             </View>
             <View className="flex-1">
-              <Text className="text-white font-semibold">Aaj ka wellness check-in baaki hai</Text>
-              <Text className="text-blue-100 text-xs mt-0.5">Bas 30 second - 3 quick sawaal</Text>
+              <Text className="text-white font-semibold">Today's wellness check-in is pending</Text>
+              <Text className="text-blue-100 text-xs mt-0.5">Just 30 seconds - 3 quick questions</Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color="white" />
           </Pressable>
@@ -192,10 +192,10 @@ export default function Home() {
           <Pressable className="bg-white rounded-t-3xl p-6" onPress={() => {}}>
             <Text className="text-slate-900 text-lg font-bold mb-1">Daily Check-in</Text>
             <Text className="text-slate-400 text-sm mb-5">
-              Yeh sirf aapko dikhega, aur aapki wellness samajhne mein madad karega.
+              This is only visible to you, and helps us understand your wellness.
             </Text>
 
-            <Text className="text-slate-700 font-medium mb-2">Aaj mood kaisa hai?</Text>
+            <Text className="text-slate-700 font-medium mb-2">How's your mood today?</Text>
             <View className="flex-row gap-2 mb-5">
               {MOOD_OPTIONS.map((option) => {
                 const selected = mood === option.key;
@@ -216,8 +216,8 @@ export default function Home() {
               })}
             </View>
 
-            <ChipGroup question="Kal raat neend kaisi thi?" options={SLEEP_OPTIONS} value={sleepHours} onChange={setSleepHours} />
-            <ChipGroup question="Aaj stress level?" options={STRESS_OPTIONS} value={stressLevel} onChange={setStressLevel} />
+            <ChipGroup question="How was your sleep last night?" options={SLEEP_OPTIONS} value={sleepHours} onChange={setSleepHours} />
+            <ChipGroup question="What's your stress level today?" options={STRESS_OPTIONS} value={stressLevel} onChange={setStressLevel} />
 
             <Pressable
               className="bg-blue-700 rounded-xl py-4 items-center mt-2"
