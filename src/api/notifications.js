@@ -3,45 +3,61 @@ import { Platform } from "react-native";
 
 const DAILY_REMINDER_ID = "daily-check-in-reminder";
 
-// App foreground mein ho tab bhi notification banner + sound dikhe
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Expo Go (Android, SDK 53+) is-poore module ke kuch calls par error
+// throw kar deta hai - isliye har jagah try/catch lagaya hai taaki app
+// crash na ho, sirf reminder feature us case mein silently skip ho jaye.
+try {
+  // App foreground mein ho tab bhi notification banner + sound dikhe
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+} catch (error) {
+  console.log("Notification handler setup skipped:", error.message);
+}
 
 // User se notification permission maangta hai (iOS mein zaroori,
 // Android 13+ mein bhi zaroori hai)
 export async function requestNotificationPermission() {
-  if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync("default", {
-      name: "Default",
-      importance: Notifications.AndroidImportance.DEFAULT,
-    });
-  }
+  try {
+    if (Platform.OS === "android") {
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "Default",
+        importance: Notifications.AndroidImportance.DEFAULT,
+      });
+    }
 
-  const { status } = await Notifications.requestPermissionsAsync();
-  return status === "granted";
+    const { status } = await Notifications.requestPermissionsAsync();
+    return status === "granted";
+  } catch (error) {
+    console.log("Notification permission request skipped:", error.message);
+    return false;
+  }
 }
 
 // Har roz shaam 8 baje local reminder - isko backend ki zaroorat nahi,
 // phone khud hi schedule karke rakhta hai
 export async function scheduleDailyCheckInReminder() {
-  await Notifications.cancelScheduledNotificationAsync(DAILY_REMINDER_ID).catch(() => {});
-  await Notifications.scheduleNotificationAsync({
-    identifier: DAILY_REMINDER_ID,
-    content: {
-      title: "Wellness Check-in",
-      body: "Today's check-in is still pending - it only takes 30 seconds.",
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour: 20,
-      minute: 0,
-    },
-  });
+  try {
+    await Notifications.cancelScheduledNotificationAsync(DAILY_REMINDER_ID).catch(() => {});
+    await Notifications.scheduleNotificationAsync({
+      identifier: DAILY_REMINDER_ID,
+      content: {
+        title: "Wellness Check-in",
+        body: "Today's check-in is still pending - it only takes 30 seconds.",
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: 20,
+        minute: 0,
+      },
+    });
+  } catch (error) {
+    console.log("Daily reminder scheduling skipped:", error.message);
+  }
 }
 
 export async function cancelDailyCheckInReminder() {
