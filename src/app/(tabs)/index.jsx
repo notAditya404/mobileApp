@@ -109,7 +109,7 @@ export default function Home() {
             icon="leaf-outline"
             title="Wellness Resources"
             subtitle="Guides and tools for better recovery"
-            onPress={() => router.push("/(tabs)/support")}
+            onPress={() => router.push("/(tabs)/wellness")}
           />
         </View>
       </ScrollView>
