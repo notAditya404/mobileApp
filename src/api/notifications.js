@@ -1,8 +1,5 @@
 import * as Notifications from "expo-notifications";
-import Constants from "expo-constants";
 import { Platform } from "react-native";
-import { apiRequest } from "./client";
-import { USE_MOCK_DATA } from "./config";
 
 const DAILY_REMINDER_ID = "daily-check-in-reminder";
 
@@ -63,34 +60,4 @@ export async function syncDailyCheckInReminder(isEnabled) {
   const granted = await requestNotificationPermission();
   if (!granted) return;
   await scheduleDailyCheckInReminder();
-}
-
-// Backend endpoint (jab ready ho): POST /personnel/me/push-token
-// Body: { token: string, platform: "ios" | "android" }
-// Yeh asli push notifications (support updates, AI insights) ke liye
-// zaroori hai - backend isi token pe Expo ke through notification bhejega.
-export async function registerPushToken() {
-  try {
-    const { status } = await Notifications.getPermissionsAsync();
-    if (status !== "granted") return;
-
-    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-    const { data: token } = await Notifications.getExpoPushTokenAsync(
-      projectId ? { projectId } : undefined,
-    );
-
-    if (USE_MOCK_DATA) {
-      console.log("Mock: push token ready to send to backend ->", token);
-      return;
-    }
-
-    await apiRequest("/personnel/me/push-token", {
-      method: "POST",
-      body: JSON.stringify({ token, platform: Platform.OS }),
-    });
-  } catch (error) {
-    // Expo Go mein remote push token nahi milta (SDK 53+ se yeh feature
-    // sirf standalone/dev-client build mein kaam karta hai) - ignore karo
-    console.log("Push token registration skipped:", error.message);
-  }
 }

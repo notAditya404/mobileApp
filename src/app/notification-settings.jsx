@@ -13,24 +13,6 @@ const OPTIONS = [
     description: "Remind me if I haven't done today's wellness check-in.",
     icon: "happy-outline",
   },
-  {
-    key: "supportRequestUpdates",
-    title: "Support Request Updates",
-    description: "Notify me when a welfare officer responds to my request.",
-    icon: "headset-outline",
-  },
-  {
-    key: "wellnessInsights",
-    title: "Wellness Insights",
-    description: "Notify me about new AI insights or recommendations.",
-    icon: "sparkles-outline",
-  },
-  {
-    key: "generalAnnouncements",
-    title: "General Announcements",
-    description: "Unit-wide announcements and updates.",
-    icon: "megaphone-outline",
-  },
 ];
 
 export default function NotificationSettings() {

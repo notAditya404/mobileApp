@@ -7,9 +7,6 @@ const PRIVACY_SETTINGS_KEY = "privacySettings";
 
 const DEFAULT_NOTIFICATION_SETTINGS = {
   dailyCheckInReminder: true,
-  supportRequestUpdates: true,
-  wellnessInsights: true,
-  generalAnnouncements: false,
 };
 
 // consent_settings table se match karta hai - kaunsa data type share karna hai
