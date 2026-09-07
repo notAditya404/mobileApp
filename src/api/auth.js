@@ -27,7 +27,11 @@ export async function login(userId, password) {
 }
 
 // Backend endpoint (jab ready ho): POST /auth/signup
-// Body: { fullName, email, rank, otp, locationAccess, password }
+// Body: { fullName, email, rank, sleepHours, dietQuality, workPressure,
+//         lastLeave, password }
+// (sleepHours/dietQuality/workPressure/lastLeave signup ke waqt li gayi
+// initial wellness survey se aate hain - backend inhe personnel ke pehle
+// self_assessment record ki tarah save kar sakta hai)
 // Response: { token: string, personnel: {...} }
 export async function signup(signupData) {
   if (USE_MOCK_DATA) {
@@ -37,18 +41,5 @@ export async function signup(signupData) {
   return apiRequest("/auth/signup", {
     method: "POST",
     body: JSON.stringify(signupData),
-  });
-}
-
-// Backend endpoint (jab ready ho): POST /auth/send-otp
-// Body: { email: string }
-export async function sendOtp(email) {
-  if (USE_MOCK_DATA) {
-    return { sent: true };
-  }
-
-  return apiRequest("/auth/send-otp", {
-    method: "POST",
-    body: JSON.stringify({ email }),
   });
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   Pressable,
   Alert,
   ScrollView,
-  Switch,
   Modal,
   FlatList,
 } from "react-native";
@@ -14,14 +13,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { signup, sendOtp } from "@/api/auth";
+import { signup } from "@/api/auth";
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 3;
 const STEP_TITLES = {
   1: "Personal Details",
-  2: "Verification (OTP)",
-  3: "Location & Device",
-  4: "Set Password",
+  2: "Initial Wellness Survey",
+  3: "Set Password",
 };
 
 // Rank dropdown ke options - CAPF/Armed Forces ke common ranks
@@ -39,6 +37,31 @@ const RANK_OPTIONS = [
   "Other",
 ];
 
+// Survey ke saare sawaal aur unke options - yeh initial baseline data
+// self_assessments table mein jayega taaki signup ke sath hi kuch data ho
+const SURVEY_QUESTIONS = [
+  {
+    key: "sleepHours",
+    question: "How many hours do you sleep on average?",
+    options: ["< 5 hrs", "5-6 hrs", "6-7 hrs", "7-8 hrs", "8+ hrs"],
+  },
+  {
+    key: "dietQuality",
+    question: "How would you rate your diet quality?",
+    options: ["Poor", "Average", "Good", "Excellent"],
+  },
+  {
+    key: "workPressure",
+    question: "How would you describe your current work pressure?",
+    options: ["Low", "Moderate", "High", "Very High"],
+  },
+  {
+    key: "lastLeave",
+    question: "When did you last take leave?",
+    options: ["This month", "1-3 months ago", "3-6 months ago", "6+ months ago"],
+  },
+];
+
 export default function Signup() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -50,27 +73,13 @@ export default function Signup() {
   const [rank, setRank] = useState("");
   const [isRankPickerVisible, setIsRankPickerVisible] = useState(false);
 
-  // Step 2 - OTP
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [secondsLeft, setSecondsLeft] = useState(58);
-  const otpRefs = useRef([]);
+  // Step 2 - Initial Wellness Survey
+  const [surveyAnswers, setSurveyAnswers] = useState({});
 
-  // Step 3 - Location & Device
-  const [locationAccess, setLocationAccess] = useState(true);
-
-  // Step 4 - Password
+  // Step 3 - Password
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  // OTP screen par har second countdown chalta hai
-  useEffect(() => {
-    if (step !== 2 || secondsLeft <= 0) return;
-    const timer = setInterval(() => {
-      setSecondsLeft((s) => (s > 0 ? s - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [step, secondsLeft]);
 
   function goBack() {
     if (step > 1) {
@@ -80,30 +89,18 @@ export default function Signup() {
     }
   }
 
-  async function handleStep1Next() {
+  function handleStep1Next() {
     if (!fullName || !email || !rank) {
       Alert.alert("Missing details", "Please fill all the required fields.");
       return;
     }
-    await sendOtp(email);
-    setSecondsLeft(58);
     setStep(2);
   }
 
-  function handleOtpChange(text, index) {
-    const digits = [...otp];
-    digits[index] = text.replace(/[^0-9]/g, "").slice(-1);
-    setOtp(digits);
-
-    // Digit bharte hi agle box par cursor le jao
-    if (digits[index] && index < 5) {
-      otpRefs.current[index + 1]?.focus();
-    }
-  }
-
-  function handleStep2Next() {
-    if (otp.some((d) => d === "")) {
-      Alert.alert("Incomplete OTP", "Please enter the full 6-digit OTP.");
+  function handleSurveyNext() {
+    const unanswered = SURVEY_QUESTIONS.some((q) => !surveyAnswers[q.key]);
+    if (unanswered) {
+      Alert.alert("Incomplete survey", "Please answer all the questions.");
       return;
     }
     setStep(3);
@@ -132,8 +129,7 @@ export default function Signup() {
         fullName,
         email,
         rank,
-        otp: otp.join(""),
-        locationAccess,
+        ...surveyAnswers,
         password,
       });
       await SecureStore.setItemAsync("authToken", token);
@@ -157,7 +153,7 @@ export default function Signup() {
           Step {step} of {TOTAL_STEPS}
         </Text>
 
-        <StepIndicator step={step} />
+        <StepIndicator step={step} totalSteps={TOTAL_STEPS} />
 
         <Text className="text-lg font-bold text-slate-900 mt-6">
           {STEP_TITLES[step]}
@@ -200,81 +196,28 @@ export default function Signup() {
         {step === 2 && (
           <View className="mt-4">
             <Text className="text-slate-500 text-sm mb-4">
-              Enter the OTP sent to {email || "your email"}
+              Bas kuch quick sawaal, taaki hum aapke liye ek baseline wellness
+              profile bana sakein.
             </Text>
 
-            <View className="flex-row justify-between mb-3">
-              {otp.map((digit, index) => (
-                <TextInput
-                  key={index}
-                  ref={(el) => (otpRefs.current[index] = el)}
-                  className="w-12 h-14 border border-slate-300 rounded-xl text-center text-lg text-slate-900"
-                  maxLength={1}
-                  keyboardType="number-pad"
-                  value={digit}
-                  onChangeText={(text) => handleOtpChange(text, index)}
-                />
-              ))}
-            </View>
+            {SURVEY_QUESTIONS.map((q) => (
+              <ChipGroup
+                key={q.key}
+                question={q.question}
+                options={q.options}
+                value={surveyAnswers[q.key]}
+                onChange={(value) =>
+                  setSurveyAnswers((prev) => ({ ...prev, [q.key]: value }))
+                }
+              />
+            ))}
 
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-slate-400 text-xs">
-                OTP sent to your email
-              </Text>
-              <Text className="text-blue-700 text-xs font-semibold">
-                {secondsLeft > 0 ? `00:${String(secondsLeft).padStart(2, "0")}` : "Expired"}
-              </Text>
-            </View>
-
-            <Pressable
-              onPress={() => {
-                setSecondsLeft(58);
-                sendOtp(email);
-              }}
-              className="mb-4"
-            >
-              <Text className="text-blue-700 text-sm font-semibold">Resend OTP</Text>
-            </Pressable>
-
-            <InfoBanner text="We use OTP to verify your identity and keep your account secure." />
-            <PrimaryButton label="Next" onPress={handleStep2Next} />
+            <InfoBanner text="Yeh jawab confidential hain aur sirf aapki wellness samajhne ke liye use honge." />
+            <PrimaryButton label="Next" onPress={handleSurveyNext} />
           </View>
         )}
 
         {step === 3 && (
-          <View className="mt-4">
-            <View className="border border-slate-200 rounded-xl p-4 mb-4">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center gap-2 flex-1 pr-3">
-                  <Ionicons name="location-outline" size={18} color="#1e293b" />
-                  <Text className="font-semibold text-slate-900">Location Access</Text>
-                </View>
-                <Switch value={locationAccess} onValueChange={setLocationAccess} />
-              </View>
-              <Text className="text-slate-500 text-sm mt-2">
-                Allow location access to get relevant alerts and support services.
-              </Text>
-            </View>
-
-            <View className="border border-slate-200 rounded-xl p-4 mb-4">
-              <View className="flex-row items-center gap-2 mb-2">
-                <Ionicons name="phone-portrait-outline" size={18} color="#1e293b" />
-                <Text className="font-semibold text-slate-900">Device Information</Text>
-              </View>
-              <Text className="text-slate-500 text-sm mb-2">
-                We collect basic device information to ensure security.
-              </Text>
-              <Text className="text-slate-400 text-xs">
-                Device: Android &middot; Version: 14
-              </Text>
-            </View>
-
-            <InfoBanner text="Your location is used only for welfare services and never shared outside your organization." />
-            <PrimaryButton label="Next" onPress={() => setStep(4)} />
-          </View>
-        )}
-
-        {step === 4 && (
           <View className="mt-4">
             <Field
               label="Password"
@@ -320,15 +263,16 @@ export default function Signup() {
   );
 }
 
-// Top par 4 circles jo current step dikhate hain
-function StepIndicator({ step }) {
+// Top par circles jo current step dikhate hain
+function StepIndicator({ step, totalSteps }) {
+  const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
   return (
     <View className="flex-row items-center">
-      {[1, 2, 3, 4].map((n) => (
+      {steps.map((n) => (
         <View key={n} className="flex-row items-center flex-1">
           <View
             className={`w-8 h-8 rounded-full items-center justify-center ${
-              n < step ? "bg-blue-700" : n === step ? "bg-blue-700" : "bg-slate-200"
+              n <= step ? "bg-blue-700" : "bg-slate-200"
             }`}
           >
             {n < step ? (
@@ -339,7 +283,7 @@ function StepIndicator({ step }) {
               </Text>
             )}
           </View>
-          {n < 4 && (
+          {n < totalSteps && (
             <View className={`flex-1 h-0.5 ${n < step ? "bg-blue-700" : "bg-slate-200"}`} />
           )}
         </View>
@@ -366,6 +310,33 @@ function Field({ label, icon, rightIcon, onPressRightIcon, ...inputProps }) {
   );
 }
 
+// Survey ka ek sawaal - options chips ki tarah, single-select
+function ChipGroup({ question, options, value, onChange }) {
+  return (
+    <View className="mb-5">
+      <Text className="text-slate-700 font-medium mb-2">{question}</Text>
+      <View className="flex-row flex-wrap gap-2">
+        {options.map((option) => {
+          const selected = value === option;
+          return (
+            <Pressable
+              key={option}
+              onPress={() => onChange(option)}
+              className={`px-3 py-2 rounded-full border ${
+                selected ? "bg-blue-700 border-blue-700" : "bg-white border-slate-300"
+              }`}
+            >
+              <Text className={selected ? "text-white text-sm" : "text-slate-600 text-sm"}>
+                {option}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 function InfoBanner({ text }) {
   return (
     <View className="flex-row items-start gap-2 bg-blue-50 rounded-xl p-3 mb-6">
@@ -385,6 +356,21 @@ function PrimaryButton({ label, onPress, disabled, icon }) {
       <Text className="text-white text-base font-semibold">{label}</Text>
       <Ionicons name={icon ?? "arrow-forward"} size={18} color="white" />
     </Pressable>
+  );
+}
+
+function RuleRow({ ok, text }) {
+  return (
+    <View className="flex-row items-center gap-2 mb-1">
+      <Ionicons
+        name={ok ? "checkmark-circle" : "ellipse-outline"}
+        size={16}
+        color={ok ? "#16a34a" : "#cbd5e1"}
+      />
+      <Text className={ok ? "text-green-700 text-sm" : "text-slate-400 text-sm"}>
+        {text}
+      </Text>
+    </View>
   );
 }
 
@@ -418,20 +404,5 @@ function RankPickerModal({ visible, selectedRank, onSelect, onClose }) {
         </Pressable>
       </Pressable>
     </Modal>
-  );
-}
-
-function RuleRow({ ok, text }) {
-  return (
-    <View className="flex-row items-center gap-2 mb-1">
-      <Ionicons
-        name={ok ? "checkmark-circle" : "ellipse-outline"}
-        size={16}
-        color={ok ? "#16a34a" : "#cbd5e1"}
-      />
-      <Text className={ok ? "text-green-700 text-sm" : "text-slate-400 text-sm"}>
-        {text}
-      </Text>
-    </View>
   );
 }
