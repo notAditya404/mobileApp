@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator, Pressable, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { getProfile } from "@/api/profile";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function Profile() {
   const router = useRouter();
@@ -29,11 +30,7 @@ export default function Profile() {
   }
 
   if (!profile) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#2563eb" />
-      </View>
-    );
+    return <ProfileSkeleton />;
   }
 
   const { fullName, rank, verified, personalInfo, language } = profile;
@@ -156,5 +153,25 @@ function SettingsRow({ icon, label, value, last }) {
         <Ionicons name="chevron-forward" size={16} color="#94a3b8" />
       </View>
     </Pressable>
+  );
+}
+
+// Data load hone tak yeh dikhta hai
+function ProfileSkeleton() {
+  return (
+    <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
+      <View className="flex-1 px-5">
+        <Skeleton className="w-24 h-7 mt-2 mb-2" />
+        <Skeleton className="w-64 h-4 mb-5" />
+
+        <Skeleton className="w-full h-24" style={{ borderRadius: 16 }} />
+
+        <Skeleton className="w-40 h-5 mt-6 mb-3" />
+        <Skeleton className="w-full h-40" style={{ borderRadius: 16 }} />
+
+        <Skeleton className="w-40 h-5 mt-6 mb-3" />
+        <Skeleton className="w-full h-14" style={{ borderRadius: 16 }} />
+      </View>
+    </SafeAreaView>
   );
 }

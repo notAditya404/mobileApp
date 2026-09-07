@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator, Pressable, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getAiInsights } from "@/api/aiInsights";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function AiInsights() {
   const [data, setData] = useState(null);
@@ -12,11 +13,7 @@ export default function AiInsights() {
   }, []);
 
   if (!data) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#4c1d95" />
-      </View>
-    );
+    return <AiInsightsSkeleton />;
   }
 
   const { summaryTitle, summaryDescription, outlookScore, outlookLabel, contributingFactors, prediction, recommendation } = data;
@@ -134,6 +131,27 @@ export default function AiInsights() {
           </Text>
         </View>
       </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+// Data load hone tak yeh dikhta hai
+function AiInsightsSkeleton() {
+  return (
+    <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
+      <View className="flex-1 px-5">
+        <View className="flex-row items-center justify-between mt-2">
+          <Skeleton className="w-32 h-7" />
+          <Skeleton className="w-28 h-8" style={{ borderRadius: 12 }} />
+        </View>
+
+        <Skeleton className="w-full h-32 mt-5" style={{ borderRadius: 16 }} />
+
+        <Skeleton className="w-36 h-5 mt-6 mb-3" />
+        <Skeleton className="w-full h-24 mb-3" style={{ borderRadius: 16 }} />
+        <Skeleton className="w-full h-24 mb-3" style={{ borderRadius: 16 }} />
+        <Skeleton className="w-full h-24" style={{ borderRadius: 16 }} />
+      </View>
     </SafeAreaView>
   );
 }

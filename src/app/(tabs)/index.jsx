@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator, Pressable, Modal, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, Modal, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { getHomeDashboard } from "@/api/home";
 import { getTodayCheckInStatus, submitCheckIn } from "@/api/selfAssessment";
+import { Skeleton } from "@/components/Skeleton";
 
 // Device ke current time ke hisaab se greeting - subah/dopahar/shaam
 function getGreeting() {
@@ -63,11 +64,7 @@ export default function Home() {
   }
 
   if (!data) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#2563eb" />
-      </View>
-    );
+    return <HomeSkeleton />;
   }
 
   const { personnel, wellnessStatus, atAGlance } = data;
@@ -318,5 +315,36 @@ function ChipGroup({ question, options, value, onChange }) {
         })}
       </View>
     </View>
+  );
+}
+
+// Data load hone tak yeh dikhta hai - Home screen ke roughly jaisa shape
+function HomeSkeleton() {
+  return (
+    <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
+      <View className="flex-1 px-5">
+        <View className="flex-row items-start justify-between mt-2">
+          <View>
+            <Skeleton className="w-24 h-4 mb-2" />
+            <Skeleton className="w-40 h-7 mb-2" />
+            <Skeleton className="w-32 h-3" />
+          </View>
+          <Skeleton className="w-10 h-10 rounded-full" />
+        </View>
+
+        <Skeleton className="w-full h-28 mt-5" style={{ borderRadius: 16 }} />
+
+        <Skeleton className="w-28 h-5 mt-6 mb-3" />
+        <View className="flex-row gap-3">
+          <Skeleton className="flex-1 h-28" style={{ borderRadius: 16 }} />
+          <Skeleton className="flex-1 h-28" style={{ borderRadius: 16 }} />
+          <Skeleton className="flex-1 h-28" style={{ borderRadius: 16 }} />
+        </View>
+
+        <Skeleton className="w-32 h-5 mt-6 mb-3" />
+        <Skeleton className="w-full h-16 mb-3" style={{ borderRadius: 16 }} />
+        <Skeleton className="w-full h-16" style={{ borderRadius: 16 }} />
+      </View>
+    </SafeAreaView>
   );
 }

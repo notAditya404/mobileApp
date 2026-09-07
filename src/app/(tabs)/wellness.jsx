@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getWellnessOverview } from "@/api/wellness";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function Wellness() {
   const [data, setData] = useState(null);
@@ -12,11 +13,7 @@ export default function Wellness() {
   }, []);
 
   if (!data) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#7c3aed" />
-      </View>
-    );
+    return <WellnessSkeleton />;
   }
 
   const { score, status, description, lastUpdated, pillars, influencingFactors, trend } = data;
@@ -126,6 +123,31 @@ export default function Wellness() {
           </View>
         </View>
       </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+// Data load hone tak yeh dikhta hai
+function WellnessSkeleton() {
+  return (
+    <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
+      <View className="flex-1 px-5">
+        <View className="mt-2">
+          <Skeleton className="w-32 h-7 mb-2" />
+          <Skeleton className="w-48 h-4" />
+        </View>
+
+        <Skeleton className="w-full h-40 mt-5" style={{ borderRadius: 16 }} />
+
+        <Skeleton className="w-36 h-5 mt-6 mb-3" />
+        <View className="flex-row gap-3">
+          <Skeleton className="w-32 h-32" style={{ borderRadius: 16 }} />
+          <Skeleton className="w-32 h-32" style={{ borderRadius: 16 }} />
+          <Skeleton className="w-32 h-32" style={{ borderRadius: 16 }} />
+        </View>
+
+        <Skeleton className="w-full h-40 mt-6" style={{ borderRadius: 16 }} />
+      </View>
     </SafeAreaView>
   );
 }

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   ScrollView,
-  ActivityIndicator,
   Pressable,
   Alert,
   Linking,
@@ -12,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getSupportRequests, getWellnessResources, createSupportRequest } from "@/api/support";
+import { Skeleton } from "@/components/Skeleton";
 
 const STATUS_COLORS = {
   Acknowledged: "#16a34a",
@@ -41,11 +41,7 @@ export default function Support() {
   }
 
   if (!requests || !resources) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#7c3aed" />
-      </View>
-    );
+    return <SupportSkeleton />;
   }
 
   return (
@@ -184,6 +180,32 @@ export default function Support() {
           )}
         </Pressable>
       </Modal>
+    </SafeAreaView>
+  );
+}
+
+// Data load hone tak yeh dikhta hai
+function SupportSkeleton() {
+  return (
+    <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
+      <View className="flex-1 px-5">
+        <View className="mt-2">
+          <Skeleton className="w-28 h-7 mb-2" />
+          <Skeleton className="w-56 h-4" />
+        </View>
+
+        <Skeleton className="w-full h-40 mt-5" style={{ borderRadius: 16 }} />
+
+        <Skeleton className="w-44 h-5 mt-6 mb-3" />
+        <Skeleton className="w-full h-20 mb-3" style={{ borderRadius: 16 }} />
+        <Skeleton className="w-full h-20" style={{ borderRadius: 16 }} />
+
+        <Skeleton className="w-40 h-5 mt-6 mb-3" />
+        <View className="flex-row flex-wrap gap-3">
+          <Skeleton className="h-28" style={{ width: "47%", borderRadius: 16 }} />
+          <Skeleton className="h-28" style={{ width: "47%", borderRadius: 16 }} />
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
