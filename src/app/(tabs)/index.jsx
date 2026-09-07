@@ -5,6 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { getHomeDashboard } from "@/api/home";
 import { getTodayCheckInStatus, submitCheckIn } from "@/api/selfAssessment";
+import { getNotificationSettings } from "@/api/settings";
+import { syncDailyCheckInReminder, registerPushToken } from "@/api/notifications";
 import { Skeleton } from "@/components/Skeleton";
 
 // Device ke current time ke hisaab se greeting - subah/dopahar/shaam
@@ -40,6 +42,13 @@ export default function Home() {
   useEffect(() => {
     getHomeDashboard().then(setData);
     getTodayCheckInStatus().then((status) => setCheckedInToday(status.submittedToday));
+
+    // Notification settings ke hisaab se daily reminder ensure karo, aur
+    // push token register karo (backend ready hone par kaam aayega)
+    getNotificationSettings().then((settings) => {
+      syncDailyCheckInReminder(settings.dailyCheckInReminder);
+    });
+    registerPushToken();
   }, []);
 
   async function handleSubmitCheckIn() {

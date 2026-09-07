@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { getNotificationSettings, updateNotificationSettings } from "@/api/settings";
+import { syncDailyCheckInReminder } from "@/api/notifications";
 
 const OPTIONS = [
   {
@@ -44,6 +45,11 @@ export default function NotificationSettings() {
     const updated = { ...settings, [key]: !settings[key] };
     setSettings(updated);
     updateNotificationSettings(updated);
+
+    // Reminder ka actual local schedule bhi turant sync karo
+    if (key === "dailyCheckInReminder") {
+      syncDailyCheckInReminder(updated.dailyCheckInReminder);
+    }
   }
 
   return (
