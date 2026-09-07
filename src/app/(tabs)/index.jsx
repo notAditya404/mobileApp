@@ -13,6 +13,7 @@ export default function Home() {
 
   return (
     <View className="flex-1 items-center justify-center gap-2">
+      <Text className="text-lg font-bold">Personnel Wellness App</Text>
       <Text>{count}</Text>
       <TextInput
         placeholder="Enter your name"
