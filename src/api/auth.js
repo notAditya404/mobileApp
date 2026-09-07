@@ -43,3 +43,16 @@ export async function signup(signupData) {
     body: JSON.stringify(signupData),
   });
 }
+
+// Backend endpoint (jab ready ho): POST /auth/change-password
+// Body: { currentPassword, newPassword }
+export async function changePassword(currentPassword, newPassword) {
+  if (USE_MOCK_DATA) {
+    return { success: true };
+  }
+
+  return apiRequest("/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}

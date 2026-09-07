@@ -11,7 +11,6 @@ const MOCK_PROFILE = {
     email: "arjun.kumar@capf.gov.in",
     bloodGroup: "O+",
   },
-  language: "English",
 };
 
 // Backend endpoint (jab ready ho): GET /personnel/me

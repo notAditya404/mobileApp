@@ -1,19 +1,31 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { getProfile } from "@/api/profile";
+import { getLanguage, setLanguage as saveLanguage } from "@/api/settings";
 import { Skeleton } from "@/components/Skeleton";
+
+const LANGUAGE_OPTIONS = ["English", "Hindi"];
 
 export default function Profile() {
   const router = useRouter();
   const [profile, setProfile] = useState(null);
+  const [language, setLanguage] = useState("English");
+  const [isLanguagePickerVisible, setIsLanguagePickerVisible] = useState(false);
 
   useEffect(() => {
     getProfile().then(setProfile);
+    getLanguage().then(setLanguage);
   }, []);
+
+  function handleSelectLanguage(value) {
+    setLanguage(value);
+    saveLanguage(value);
+    setIsLanguagePickerVisible(false);
+  }
 
   function handleLogout() {
     Alert.alert("Logout", "Are you sure you want to sign out?", [
@@ -33,7 +45,7 @@ export default function Profile() {
     return <ProfileSkeleton />;
   }
 
-  const { fullName, rank, verified, personalInfo, language } = profile;
+  const { fullName, rank, verified, personalInfo } = profile;
 
   const personalInfoRows = [
     { icon: "calendar-outline", label: "Date of Birth", value: personalInfo.dob },
@@ -99,15 +111,34 @@ export default function Profile() {
         {/* Account & security */}
         <SectionTitle icon="lock-closed-outline" title="Account & Security" />
         <View className="bg-white rounded-2xl shadow-sm">
-          <SettingsRow icon="lock-closed-outline" label="Change Password" last />
+          <SettingsRow
+            icon="lock-closed-outline"
+            label="Change Password"
+            last
+            onPress={() => router.push("/change-password")}
+          />
         </View>
 
         {/* Settings */}
         <SectionTitle icon="settings-outline" title="Settings" />
         <View className="bg-white rounded-2xl shadow-sm">
-          <SettingsRow icon="notifications-outline" label="Notification Settings" />
-          <SettingsRow icon="shield-checkmark-outline" label="Privacy & Data Settings" />
-          <SettingsRow icon="language-outline" label="Language" value={language} last />
+          <SettingsRow
+            icon="notifications-outline"
+            label="Notification Settings"
+            onPress={() => router.push("/notification-settings")}
+          />
+          <SettingsRow
+            icon="shield-checkmark-outline"
+            label="Privacy & Data Settings"
+            onPress={() => router.push("/privacy-settings")}
+          />
+          <SettingsRow
+            icon="language-outline"
+            label="Language"
+            value={language}
+            last
+            onPress={() => setIsLanguagePickerVisible(true)}
+          />
         </View>
 
         {/* Logout */}
@@ -125,6 +156,38 @@ export default function Profile() {
           <Ionicons name="chevron-forward" size={18} color="#dc2626" />
         </Pressable>
       </ScrollView>
+
+      {/* Language picker */}
+      <Modal
+        visible={isLanguagePickerVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsLanguagePickerVisible(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/40 justify-end"
+          onPress={() => setIsLanguagePickerVisible(false)}
+        >
+          <Pressable className="bg-white rounded-t-2xl" onPress={() => {}}>
+            <View className="flex-row items-center justify-between p-4 border-b border-slate-100">
+              <Text className="text-lg font-bold text-slate-900">Select Language</Text>
+              <Pressable onPress={() => setIsLanguagePickerVisible(false)}>
+                <Ionicons name="close" size={22} color="#64748b" />
+              </Pressable>
+            </View>
+            {LANGUAGE_OPTIONS.map((option) => (
+              <Pressable
+                key={option}
+                className="flex-row items-center justify-between px-5 py-4 border-b border-slate-50"
+                onPress={() => handleSelectLanguage(option)}
+              >
+                <Text className="text-slate-800">{option}</Text>
+                {language === option && <Ionicons name="checkmark" size={18} color="#1d4ed8" />}
+              </Pressable>
+            ))}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -138,11 +201,11 @@ function SectionTitle({ icon, title }) {
   );
 }
 
-function SettingsRow({ icon, label, value, last }) {
+function SettingsRow({ icon, label, value, last, onPress }) {
   return (
     <Pressable
       className={`flex-row items-center justify-between p-4 ${last ? "" : "border-b border-slate-100"}`}
-      onPress={() => Alert.alert(label, "This feature will be added in a future update.")}
+      onPress={onPress}
     >
       <View className="flex-row items-center gap-2">
         <Ionicons name={icon} size={16} color="#334155" />
