@@ -11,7 +11,7 @@ export default function Welcome() {
   return (
     <View className="flex-1 bg-white">
       {/* Background photo with logo/tagline overlaid on top */}
-      <View style={{ height: "62%" }} className="relative">
+      <View style={{ height: "76%" }} className="relative">
         <Image
           source={require("@/assets/images/welcome-soldier.jpg")}
           style={StyleSheet.absoluteFill}
@@ -35,20 +35,17 @@ export default function Welcome() {
         </SafeAreaView>
       </View>
 
-      {/* Feature row + CTA - flex-1 so this fills the rest of the screen
-          exactly (no leftover empty space below the button) */}
-      <SafeAreaView edges={["bottom"]} className="flex-1 bg-white rounded-t-3xl -mt-6 px-8 pt-8 pb-6">
-        <View className="flex-1 justify-center">
-          <View className="flex-row justify-between">
-            <FeatureItem icon="pulse-outline" title="Monitor" subtitle="Well-being" />
-            <FeatureItem icon="shield-checkmark-outline" title="Predict" subtitle="Risks" />
-            <FeatureItem icon="people-outline" title="Support" subtitle="Always" />
-            <FeatureItem icon="bar-chart-outline" title="Improve" subtitle="Everyday" />
-          </View>
+      {/* Feature row + CTA */}
+      <SafeAreaView edges={["bottom"]} className="flex-1 bg-white rounded-t-3xl -mt-6 px-8 pt-6 pb-6 justify-center">
+        <View className="flex-row justify-between">
+          <FeatureItem icon="pulse-outline" title="Monitor" subtitle="Well-being" />
+          <FeatureItem icon="shield-checkmark-outline" title="Predict" subtitle="Risks" />
+          <FeatureItem icon="people-outline" title="Support" subtitle="Always" />
+          <FeatureItem icon="bar-chart-outline" title="Improve" subtitle="Everyday" />
         </View>
 
         <Pressable
-          className="bg-blue-700 rounded-2xl py-4 flex-row items-center justify-center gap-2"
+          className="bg-blue-700 rounded-2xl py-4 flex-row items-center justify-center gap-2 mt-6"
           onPress={() => router.push("/login")}
         >
           <Text className="text-white text-lg font-semibold">Get Started</Text>
