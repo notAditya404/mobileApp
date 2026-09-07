@@ -13,7 +13,7 @@ export default function Welcome() {
       {/* Background photo with logo/tagline overlaid on top */}
       <View style={{ height: "52%" }} className="relative">
         <Image
-          source={require("@/assets/images/welcome-soldier.png")}
+          source={require("@/assets/images/welcome-soldier.jpg")}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
         />
