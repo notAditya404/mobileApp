@@ -27,8 +27,8 @@ export async function login(userId, password) {
 }
 
 // Backend endpoint (jab ready ho): POST /auth/signup
-// Body: { fullName, email, rank, sleepHours, dietQuality, workPressure,
-//         lastLeave, password }
+// Body: { fullName, email, rank, dob, gender, bloodGroup, sleepHours,
+//         dietQuality, workPressure, lastLeave, password }
 // (sleepHours/dietQuality/workPressure/lastLeave signup ke waqt li gayi
 // initial wellness survey se aate hain - backend inhe personnel ke pehle
 // self_assessment record ki tarah save kar sakta hai)

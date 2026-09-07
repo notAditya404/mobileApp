@@ -36,14 +36,12 @@ export default function Profile() {
     );
   }
 
-  const { fullName, employeeId, unitLabel, unitCode, unitName, verified, personalInfo, activeDevicesCount, language } = profile;
+  const { fullName, rank, verified, personalInfo, language } = profile;
 
   const personalInfoRows = [
     { icon: "calendar-outline", label: "Date of Birth", value: personalInfo.dob },
     { icon: "person-outline", label: "Gender", value: personalInfo.gender },
     { icon: "mail-outline", label: "Email", value: personalInfo.email },
-    { icon: "call-outline", label: "Mobile Number", value: personalInfo.mobile },
-    { icon: "location-outline", label: "Base Location", value: personalInfo.baseLocation },
     { icon: "water-outline", label: "Blood Group", value: personalInfo.bloodGroup },
   ];
 
@@ -58,29 +56,20 @@ export default function Profile() {
 
         {/* Profile card */}
         <View className="bg-blue-50 rounded-2xl p-5">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center flex-1 pr-3">
-              <View className="w-16 h-16 rounded-full bg-blue-600 items-center justify-center mr-3">
-                <Text className="text-white text-xl font-bold">
-                  {fullName.split(" ").map((w) => w[0]).slice(0, 2).join("")}
-                </Text>
-              </View>
-              <View className="flex-1">
-                <View className="flex-row items-center gap-1">
-                  <Text className="text-slate-900 font-bold" numberOfLines={1}>
-                    {fullName}
-                  </Text>
-                  {verified && <Ionicons name="checkmark-circle" size={16} color="#16a34a" />}
-                </View>
-                <Text className="text-slate-500 text-xs mt-1">ID: {employeeId}</Text>
-                <Text className="text-slate-500 text-xs">{unitLabel}</Text>
-              </View>
+          <View className="flex-row items-center">
+            <View className="w-16 h-16 rounded-full bg-blue-600 items-center justify-center mr-3">
+              <Text className="text-white text-xl font-bold">
+                {fullName.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+              </Text>
             </View>
-            <View className="items-center">
-              <View className="w-10 h-10 rounded-lg bg-blue-900 items-center justify-center">
-                <Text className="text-white text-xs font-bold">{unitCode}</Text>
+            <View className="flex-1">
+              <View className="flex-row items-center gap-1">
+                <Text className="text-slate-900 font-bold" numberOfLines={1}>
+                  {fullName}
+                </Text>
+                {verified && <Ionicons name="checkmark-circle" size={16} color="#16a34a" />}
               </View>
-              <Text className="text-slate-500 text-[10px] mt-1 text-center">{unitName}</Text>
+              <Text className="text-slate-500 text-xs mt-1">{rank}</Text>
             </View>
           </View>
           {verified && (
@@ -113,9 +102,7 @@ export default function Profile() {
         {/* Account & security */}
         <SectionTitle icon="lock-closed-outline" title="Account & Security" />
         <View className="bg-white rounded-2xl shadow-sm">
-          <SettingsRow icon="lock-closed-outline" label="Change Password" />
-          <SettingsRow icon="key-outline" label="Login & Security" />
-          <SettingsRow icon="phone-portrait-outline" label="Active Devices" value={`${activeDevicesCount} Devices`} last />
+          <SettingsRow icon="lock-closed-outline" label="Change Password" last />
         </View>
 
         {/* Settings */}

@@ -37,6 +37,10 @@ const RANK_OPTIONS = [
   "Other",
 ];
 
+const GENDER_OPTIONS = ["Male", "Female", "Other"];
+
+const BLOOD_GROUP_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
 // Survey ke saare sawaal aur unke options - yeh initial baseline data
 // self_assessments table mein jayega taaki signup ke sath hi kuch data ho
 const SURVEY_QUESTIONS = [
@@ -72,6 +76,9 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [rank, setRank] = useState("");
   const [isRankPickerVisible, setIsRankPickerVisible] = useState(false);
+  const [dob, setDob] = useState("");
+  const [gender, setGender] = useState("");
+  const [bloodGroup, setBloodGroup] = useState("");
 
   // Step 2 - Initial Wellness Survey
   const [surveyAnswers, setSurveyAnswers] = useState({});
@@ -90,7 +97,7 @@ export default function Signup() {
   }
 
   function handleStep1Next() {
-    if (!fullName || !email || !rank) {
+    if (!fullName || !email || !rank || !dob || !gender || !bloodGroup) {
       Alert.alert("Missing details", "Please fill all the required fields.");
       return;
     }
@@ -129,6 +136,9 @@ export default function Signup() {
         fullName,
         email,
         rank,
+        dob,
+        gender,
+        bloodGroup,
         ...surveyAnswers,
         password,
       });
@@ -177,6 +187,28 @@ export default function Signup() {
                 <Ionicons name="chevron-down" size={18} color="#64748b" />
               </Pressable>
             </View>
+
+            <Field
+              label="Date of Birth"
+              icon="calendar-outline"
+              value={dob}
+              onChangeText={setDob}
+              placeholder="DD/MM/YYYY"
+            />
+
+            <ChipGroup
+              question="Gender"
+              options={GENDER_OPTIONS}
+              value={gender}
+              onChange={setGender}
+            />
+
+            <ChipGroup
+              question="Blood Group"
+              options={BLOOD_GROUP_OPTIONS}
+              value={bloodGroup}
+              onChange={setBloodGroup}
+            />
 
             <InfoBanner text="Make sure your details match your official records." />
             <PrimaryButton label="Next" onPress={handleStep1Next} />
