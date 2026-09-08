@@ -33,6 +33,12 @@ const REQUEST_TYPES = [
   { key: "general", label: "General" },
 ];
 
+const SUPPORT_TYPE_ICONS = {
+  welfare: "person-outline",
+  medical: "medkit-outline",
+  general: "chatbubble-outline",
+};
+
 export default function Support() {
   const [requests, setRequests] = useState(null);
 
@@ -152,7 +158,11 @@ export default function Support() {
           {requests.map((req) => (
             <View key={req.id} className="flex-row items-center bg-white rounded-2xl p-4 shadow-sm">
               <View className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center mr-3">
-                <Ionicons name={req.icon ?? "document-text-outline"} size={18} color="#334155" />
+                <Ionicons
+                  name={SUPPORT_TYPE_ICONS[req.requestType] ?? "document-text-outline"}
+                  size={18}
+                  color="#334155"
+                />
               </View>
               <View className="flex-1">
                 <Text className="text-slate-900 font-semibold">{req.title}</Text>
@@ -190,38 +200,34 @@ export default function Support() {
         </View>
 
         {/* My leave requests */}
-        {leaveRequests.length > 0 && (
-          <>
-            <Text className="text-slate-900 text-lg font-bold mt-6 mb-3">My Leave Requests</Text>
-            <View className="gap-3">
-              {leaveRequests.map((leave) => (
-                <View key={leave.id} className="flex-row items-center bg-white rounded-2xl p-4 shadow-sm">
-                  <View className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center mr-3">
-                    <Ionicons name="calendar-outline" size={18} color="#334155" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-slate-900 font-semibold">
-                      {leave.fromDate}
-                      {leave.fromDate !== leave.toDate ? ` - ${leave.toDate}` : ""}
-                    </Text>
-                    <Text className="text-slate-400 text-xs mt-0.5">{leave.reason}</Text>
-                  </View>
-                  <View
-                    className="px-2.5 py-1 rounded-full"
-                    style={{ backgroundColor: `${LEAVE_STATUS_COLORS[leave.status] ?? "#64748b"}1A` }}
-                  >
-                    <Text
-                      className="text-xs font-semibold"
-                      style={{ color: LEAVE_STATUS_COLORS[leave.status] ?? "#64748b" }}
-                    >
-                      {leave.status}
-                    </Text>
-                  </View>
-                </View>
-              ))}
+        <Text className="text-slate-900 text-lg font-bold mt-6 mb-3">My Leave Requests</Text>
+        <View className="gap-3">
+          {leaveRequests.map((leave) => (
+            <View key={leave.id} className="flex-row items-center bg-white rounded-2xl p-4 shadow-sm">
+              <View className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center mr-3">
+                <Ionicons name="calendar-outline" size={18} color="#334155" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-900 font-semibold">
+                  {leave.fromDate}
+                  {leave.fromDate !== leave.toDate ? ` - ${leave.toDate}` : ""}
+                </Text>
+                <Text className="text-slate-400 text-xs mt-0.5">{leave.reason}</Text>
+              </View>
+              <View
+                className="px-2.5 py-1 rounded-full"
+                style={{ backgroundColor: `${LEAVE_STATUS_COLORS[leave.status] ?? "#64748b"}1A` }}
+              >
+                <Text
+                  className="text-xs font-semibold"
+                  style={{ color: LEAVE_STATUS_COLORS[leave.status] ?? "#64748b" }}
+                >
+                  {leave.status}
+                </Text>
+              </View>
             </View>
-          </>
-        )}
+          ))}
+        </View>
 
         {/* Resources */}
         <Text className="text-slate-900 text-lg font-bold mt-6 mb-3">Wellness Resources</Text>
@@ -444,6 +450,11 @@ function SupportSkeleton() {
 
         <Skeleton className="w-44 h-5 mt-6 mb-3" />
         <Skeleton className="w-full h-20 mb-3" style={{ borderRadius: 16 }} />
+        <Skeleton className="w-full h-20" style={{ borderRadius: 16 }} />
+
+        <Skeleton className="w-full h-40 mt-6" style={{ borderRadius: 16 }} />
+
+        <Skeleton className="w-40 h-5 mt-6 mb-3" />
         <Skeleton className="w-full h-20" style={{ borderRadius: 16 }} />
 
         <Skeleton className="w-40 h-5 mt-6 mb-3" />

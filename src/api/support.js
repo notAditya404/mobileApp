@@ -1,20 +1,23 @@
 import { apiRequest } from "./client";
 import { USE_MOCK_DATA } from "./config";
 
+// `requestType` yahan sirf app ke apne icon lookup ke liye hai (jaisa
+// wellness pillars/contributing factors mein `key` hota hai) - icon khud
+// API se nahi aata, request.jsx mein locally decide hota hai.
 const MOCK_SUPPORT_REQUESTS = [
   {
     id: "WS-240828-102",
     title: "Welfare Support Request",
+    requestType: "welfare",
     submittedAt: "28 Aug 2024, 10:30 AM",
     status: "Acknowledged",
-    icon: "person-outline",
   },
   {
     id: "GA-240818-041",
     title: "General Assistance",
+    requestType: "general",
     submittedAt: "18 Aug 2024, 04:15 PM",
     status: "In Progress",
-    icon: "chatbubble-outline",
   },
 ];
 
@@ -68,11 +71,21 @@ export async function getSupportRequests() {
 // Body: { requestType: "medical" | "welfare" | "general", description: string }
 export async function createSupportRequest(requestType, description) {
   if (USE_MOCK_DATA) {
-    // Mock mein bas ek "success" response wapas bhej dete hain
+    // Mock mein bas ek "success" response wapas bhej dete hain - date
+    // format seeded mock entries jaisa hi rakha hai (locale-dependent
+    // toLocaleString() nahi), warna list mein do alag date styles dikhte
     return {
       id: `MOCK-${Date.now()}`,
       title: "Support Request",
-      submittedAt: new Date().toLocaleString(),
+      requestType,
+      submittedAt: new Date().toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }),
       status: "Submitted",
     };
   }

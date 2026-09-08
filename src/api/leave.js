@@ -25,14 +25,23 @@ export async function getLeaveRequests() {
 export async function createLeaveRequest(fromDate, toDate, reason) {
   if (USE_MOCK_DATA) {
     // Mock mein bas ek "Pending" response wapas bhej dete hain - admin
-    // web dashboard se approve/reject karega
+    // web dashboard se approve/reject karega. Date format seeded mock
+    // entry jaisa hi rakha hai (locale-dependent toLocaleString() nahi),
+    // warna list mein do alag date styles dikhte.
     return {
       id: `MOCK-${Date.now()}`,
       fromDate,
       toDate,
       reason,
       status: "Pending",
-      submittedAt: new Date().toLocaleString(),
+      submittedAt: new Date().toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }),
     };
   }
 

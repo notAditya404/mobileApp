@@ -215,18 +215,24 @@ the ongoing trend data the AI model leans on over time.
   {
     "id": "WS-240828-102",
     "title": "Welfare Support Request",
+    "requestType": "welfare",
     "submittedAt": "28 Aug 2024, 10:30 AM",
     "status": "Acknowledged"
   }
 ]
 ```
+`requestType` is the same `"welfare" | "medical" | "general"` value the
+request was created with (see `POST` below) — it's for the app's own
+icon lookup, same convention as `key` elsewhere in this contract (no
+`icon`/`color` field, the app decides that locally from `requestType`).
+
 The three `status` values the UI actively styles are `"Submitted"`,
 `"Acknowledged"`, and `"In Progress"` — anything else still displays
 fine, just falls back to a neutral gray badge.
 
 ### `POST /personnel/me/support-requests`
 **Body:** `{ "requestType": "welfare" | "medical" | "general", "description": "string" }`
-**Response:** same shape as one of the items above — `{ id, title, submittedAt, status }`
+**Response:** same shape as one of the items above — `{ id, title, requestType, submittedAt, status }`
 
 One thing that's deliberately **not** here: wellness resources (Rest &
 Recovery, Sleep Better, Managing Stress, Stay Active). There's no

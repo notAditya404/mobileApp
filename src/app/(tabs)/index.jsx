@@ -368,6 +368,8 @@ function HomeSkeleton() {
         <Skeleton className="w-32 h-5 mt-6 mb-3" />
         <Skeleton className="w-full h-16 mb-3" style={{ borderRadius: 16 }} />
         <Skeleton className="w-full h-16" style={{ borderRadius: 16 }} />
+
+        <Skeleton className="w-full h-16 mt-6" style={{ borderRadius: 16 }} />
       </View>
     </SafeAreaView>
   );
