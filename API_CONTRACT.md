@@ -164,9 +164,9 @@ the backend's job here is just to relay it to the app as-is.
   "outlookScore": 78,
   "outlookLabel": "Balanced",
   "contributingFactors": [
-    { "key": "nightDutyFrequency", "label": "string", "description": "string", "impact": "High Impact", "impactPercent": 80 },
-    { "key": "consecutiveDutyDays", "label": "string", "description": "string", "impact": "Moderate Impact", "impactPercent": 55 },
-    { "key": "restGap", "label": "string", "description": "string", "impact": "Low Impact", "impactPercent": 25 }
+    { "key": "nightDutyFrequency", "label": "Night Duty Frequency", "description": "string", "impact": "High Impact", "impactPercent": 80 },
+    { "key": "consecutiveDutyDays", "label": "Consecutive Duty Days", "description": "string", "impact": "Moderate Impact", "impactPercent": 55 },
+    { "key": "restGap", "label": "Rest Gap", "description": "string", "impact": "Low Impact", "impactPercent": 25 }
   ],
   "prediction": { "text": "string", "riskPercent": 65, "riskLabel": "Moderate" },
   "recommendation": { "title": "string", "description": "string" }
