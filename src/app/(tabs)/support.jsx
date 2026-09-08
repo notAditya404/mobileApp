@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   View,
   Text,
+  TextInput,
   ScrollView,
   Pressable,
   Alert,
@@ -19,23 +20,51 @@ const STATUS_COLORS = {
   Submitted: "#7c3aed",
 };
 
+const REQUEST_TYPES = [
+  { key: "welfare", label: "Welfare" },
+  { key: "medical", label: "Medical" },
+  { key: "general", label: "General" },
+];
+
 export default function Support() {
   const [requests, setRequests] = useState(null);
 
   // Resource card tap karne par isme woh resource set hoti hai (detail modal)
   const [selectedResource, setSelectedResource] = useState(null);
 
+  // "Request Support" form modal - API ko ek real requestType + description
+  // chahiye (sirf ek fixed string kaafi nahi), isliye chhota form leta hai
+  const [isRequestFormVisible, setIsRequestFormVisible] = useState(false);
+  const [requestType, setRequestType] = useState("welfare");
+  const [requestDescription, setRequestDescription] = useState("");
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+
   useEffect(() => {
     getSupportRequests().then(setRequests);
   }, []);
 
-  async function handleRequestSupport() {
-    // Yeh call asli backend ready hone par seedha admin dashboard ko
-    // dikhne wali request banayegi (src/api/config.js mein USE_MOCK_DATA
-    // false karke). Admin phir apni taraf se doctor/counselor allot karega.
-    const newRequest = await createSupportRequest("welfare", "Requesting welfare officer support.");
-    setRequests((prev) => [newRequest, ...(prev ?? [])]);
-    Alert.alert("Request Sent", "Your support request has been submitted. A welfare officer will reach out to you.");
+  async function handleSubmitRequest() {
+    if (!requestDescription.trim()) {
+      Alert.alert("Missing details", "Please briefly describe what you need help with.");
+      return;
+    }
+
+    setIsSubmittingRequest(true);
+    try {
+      // Yeh call asli backend ready hone par seedha admin dashboard ko
+      // dikhne wali request banayegi (src/api/config.js mein USE_MOCK_DATA
+      // false karke). Admin phir apni taraf se doctor/counselor allot karega.
+      const newRequest = await createSupportRequest(requestType, requestDescription.trim());
+      setRequests((prev) => [newRequest, ...(prev ?? [])]);
+      setIsRequestFormVisible(false);
+      setRequestDescription("");
+      setRequestType("welfare");
+      Alert.alert("Request Sent", "Your support request has been submitted to your welfare officer.");
+    } catch (error) {
+      Alert.alert("Something went wrong", "Please try again in a moment.");
+    } finally {
+      setIsSubmittingRequest(false);
+    }
   }
 
   if (!requests) {
@@ -66,7 +95,7 @@ export default function Support() {
           </Text>
           <Pressable
             className="bg-violet-700 rounded-xl py-3 px-5 self-start flex-row items-center gap-2"
-            onPress={handleRequestSupport}
+            onPress={() => setIsRequestFormVisible(true)}
           >
             <Text className="text-white font-semibold">Request Support</Text>
             <Ionicons name="chevron-forward" size={16} color="white" />
@@ -176,6 +205,67 @@ export default function Support() {
               </Pressable>
             </Pressable>
           )}
+        </Pressable>
+      </Modal>
+
+      {/* Request Support form modal */}
+      <Modal
+        visible={isRequestFormVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsRequestFormVisible(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/50 justify-end"
+          onPress={() => setIsRequestFormVisible(false)}
+        >
+          <Pressable className="bg-white rounded-t-3xl p-6" onPress={() => {}}>
+            <Text className="text-slate-900 text-lg font-bold mb-1">Request Support</Text>
+            <Text className="text-slate-400 text-sm mb-4">
+              This goes directly to your unit's welfare officer.
+            </Text>
+
+            <Text className="text-slate-600 text-sm mb-2">What kind of support do you need?</Text>
+            <View className="flex-row gap-2 mb-4">
+              {REQUEST_TYPES.map((type) => {
+                const selected = requestType === type.key;
+                return (
+                  <Pressable
+                    key={type.key}
+                    onPress={() => setRequestType(type.key)}
+                    className={`px-4 py-2 rounded-full border ${
+                      selected ? "bg-violet-700 border-violet-700" : "bg-white border-slate-300"
+                    }`}
+                  >
+                    <Text className={selected ? "text-white text-sm" : "text-slate-600 text-sm"}>
+                      {type.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <Text className="text-slate-600 text-sm mb-2">Briefly describe your situation</Text>
+            <TextInput
+              className="border border-slate-300 rounded-xl p-3 text-slate-900 mb-5"
+              placeholder="What's going on? (kept confidential)"
+              multiline
+              numberOfLines={4}
+              value={requestDescription}
+              onChangeText={setRequestDescription}
+              style={{ minHeight: 90, textAlignVertical: "top" }}
+            />
+
+            <Pressable
+              className="bg-violet-700 rounded-xl py-4 items-center"
+              onPress={handleSubmitRequest}
+              disabled={isSubmittingRequest}
+            >
+              <Text className="text-white font-semibold">
+                {isSubmittingRequest ? "Submitting..." : "Submit Request"}
+              </Text>
+            </Pressable>
+          </Pressable>
         </Pressable>
       </Modal>
     </SafeAreaView>
