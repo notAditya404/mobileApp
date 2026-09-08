@@ -1,14 +1,5 @@
 # MANOVA — Mobile App API Contract
 
-This is what the mobile app (React Native / Expo) expects from the backend.
-Right now the app runs entirely on mock data (`src/api/config.js` →
-`USE_MOCK_DATA = true`). Once these endpoints exist, we flip that one flag
-to `false` and set `BASE_URL` to the real server — nothing else in the app
-needs to change.
-
-All endpoints below are prefixed with the configured `BASE_URL` (currently
-`http://localhost:8080/api` for local testing).
-
 ## Conventions
 
 - All requests/responses are JSON (`Content-Type: application/json`)
@@ -243,8 +234,3 @@ backend to build here.
 - `support_requests`
 - `doctor_allotments` — admin assigns a doctor to a personnel, optionally linked to a `support_requests` row
 - `notifications`
-
-## Known gaps / open items (backend-side)
-
-1. **`/wellness` score calculation** — the mobile app expects a fully computed result; the actual computation logic (from raw `hr_indicators`) is entirely a backend concern, not something the app does.
-2. **Push notifications** — not implemented on the backend side at all yet; only a local (on-device) daily reminder exists right now, no server-triggered push.
