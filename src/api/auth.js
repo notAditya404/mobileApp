@@ -5,9 +5,7 @@ import { USE_MOCK_DATA } from "./config";
 const MOCK_LOGIN_RESPONSE = {
   token: "mock-token-123",
   personnel: {
-    id: 1,
     fullName: "Arjun Kumar",
-    employeeId: "CAPF123456",
     rank: "Rifleman",
   },
 };

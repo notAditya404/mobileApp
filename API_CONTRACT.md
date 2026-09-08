@@ -52,9 +52,7 @@ the exact status code you return.
 {
   "token": "string",
   "personnel": {
-    "id": 1,
     "fullName": "Arjun Kumar",
-    "employeeId": "CAPF123456",
     "rank": "Rifleman"
   }
 }
