@@ -113,13 +113,8 @@ export default function Profile() {
           <SettingsRow
             icon="notifications-outline"
             label="Notification Settings"
-            onPress={() => router.push("/notification-settings")}
-          />
-          <SettingsRow
-            icon="shield-checkmark-outline"
-            label="Privacy & Data Settings"
             last
-            onPress={() => router.push("/privacy-settings")}
+            onPress={() => router.push("/notification-settings")}
           />
         </View>
 

@@ -233,10 +233,6 @@ Static content — could be hardcoded on the backend or made admin-editable late
 ### `GET /personnel/me/notification-settings` / `PUT /personnel/me/notification-settings`
 **Body/Response:** `{ "dailyCheckInReminder": true }`
 
-### `GET /personnel/me/privacy-settings` / `PUT /personnel/me/privacy-settings`
-**Body/Response:** `{ "location": true, "wearableData": false, "hrData": true }`
-Maps directly to the `consent_settings` table (one row per data type).
-
 ---
 
 ## Database tables this implies (from our earlier design discussion)
@@ -251,7 +247,6 @@ Maps directly to the `consent_settings` table (one row per data type).
 - `support_requests`
 - `doctor_allotments` — admin assigns a doctor to a personnel, optionally linked to a `support_requests` row
 - `notifications`
-- `consent_settings` — feeds `/privacy-settings`
 
 ## Known gaps / open items (backend-side)
 

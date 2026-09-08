@@ -23,7 +23,6 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="change-password" />
         <Stack.Screen name="notification-settings" />
-        <Stack.Screen name="privacy-settings" />
       </Stack.Protected>
 
       {/* Login se pehle hi yeh screens reachable hain. Login/Signup
