@@ -1,3 +1,4 @@
+import * as SecureStore from "expo-secure-store";
 import { BASE_URL } from "./config";
 
 // Yeh ek common function hai jo poore app mein backend ko call karne
@@ -11,12 +12,15 @@ import { BASE_URL } from "./config";
 //     body: JSON.stringify({ requestType: "medical" }),
 //   });
 export async function apiRequest(endpoint, options = {}) {
+  const token = await SecureStore.getItemAsync("authToken");
+
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      // Login ke baad yahan Authorization: `Bearer <token>` add hoga
-      // (token expo-secure-store se read karke).
+      // Login/signup ke baad SecureStore mein save hua token yahan
+      // automatically har request ke saath jaata hai
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });

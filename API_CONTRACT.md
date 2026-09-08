@@ -12,10 +12,9 @@ All endpoints below are prefixed with the configured `BASE_URL` (currently
 ## Conventions
 
 - All requests/responses are JSON (`Content-Type: application/json`)
-- After login/signup, the app stores the returned `token` and should send
-  it on every subsequent request as `Authorization: Bearer <token>`
-  **(⚠️ not yet wired on the app side — currently a TODO, flagging so it's
-  not missed on either side)**
+- After login/signup, the app stores the returned `token` and sends it on
+  every subsequent request as `Authorization: Bearer <token>`
+  (handled centrally in `src/api/client.js`)
 - `GET /personnel/me...` endpoints should resolve "me" from the auth token
   (JWT/session), not a client-supplied ID
 - Every source file under `src/api/*.js` in the repo has the exact request
@@ -217,8 +216,7 @@ Maps directly to the `consent_settings` table (one row per data type).
 - `notifications`
 - `consent_settings` — feeds `/privacy-settings`
 
-## Known gaps / open items
+## Known gaps / open items (backend-side)
 
-1. **Auth token isn't sent yet** — the app's `apiRequest()` helper doesn't attach `Authorization: Bearer <token>` automatically. Needs a small fix on the app side before going live with the real backend (reading the token from `expo-secure-store` and injecting it as a header).
-2. **`/wellness` score calculation** — the mobile app expects a fully computed result; the actual computation logic (from raw `hr_indicators`) is entirely a backend concern, not something the app does.
-3. **Push notifications** — not implemented on the backend side at all yet; only a local (on-device) daily reminder exists right now, no server-triggered push.
+1. **`/wellness` score calculation** — the mobile app expects a fully computed result; the actual computation logic (from raw `hr_indicators`) is entirely a backend concern, not something the app does.
+2. **Push notifications** — not implemented on the backend side at all yet; only a local (on-device) daily reminder exists right now, no server-triggered push.
