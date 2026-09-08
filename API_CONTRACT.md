@@ -1,17 +1,5 @@
 # MANOVA — Mobile App API Contract
 
-Hey! This doc walks through everything the MANOVA mobile app (React
-Native / Expo) needs from your backend to work for real. Right now the
-app runs entirely on mock data — every screen just returns fake JSON
-locally instead of calling a server. Once the endpoints below exist,
-we flip one config flag (`USE_MOCK_DATA` in `src/api/config.js`) to
-`false` and point `BASE_URL` at your server, and the app starts
-talking to the real thing. Nothing else in the app needs to change.
-
-Every function in `src/api/*.js` already has a comment right above it
-spelling out the exact endpoint, request body, and response shape —
-this doc is just a readable summary of all of those in one place.
-
 ## A few ground rules before the endpoints
 
 Everything is plain JSON — requests and responses both use
@@ -19,17 +7,7 @@ Everything is plain JSON — requests and responses both use
 
 Once someone logs in or signs up, the app hangs onto the `token` you
 send back and attaches it to every request after that as
-`Authorization: Bearer <token>`. This is already wired up centrally in
-one place (`src/api/client.js`), so nothing per-screen needs to worry
-about it. For `GET /personnel/me...` style endpoints, please resolve
-"me" from that token rather than trusting anything the client sends —
-we never pass a personnel ID explicitly.
-
-On the token format itself: we'd recommend **JWT**. It pairs naturally
-with the `Bearer` scheme above, and Spring Security has solid built-in
-support for it. That said, the app treats whatever you send back as a
-completely opaque string — it never decodes or inspects it, just
-stores it and forwards it.
+`Authorization: Bearer <token>`.
 
 One behavior worth knowing about: if **any** authenticated request
 comes back with a `401`, the app treats that as "your session expired"
