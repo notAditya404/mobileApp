@@ -6,7 +6,7 @@ import { USE_MOCK_DATA } from "./config";
 // ka switch hataana pade, UI mein kuch badalna na pade.
 const MOCK_HOME_DASHBOARD = {
   personnel: {
-    fullName: "Rifleman Arjun",
+    fullName: "Arjun Kumar",
   },
   wellnessStatus: {
     label: "Balanced",

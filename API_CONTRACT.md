@@ -43,7 +43,7 @@ All endpoints below are prefixed with the configured `BASE_URL` (currently
   "token": "string",
   "personnel": {
     "id": 1,
-    "fullName": "Rifleman Arjun Kumar",
+    "fullName": "Arjun Kumar",
     "employeeId": "CAPF123456",
     "rank": "Rifleman"
   }
@@ -80,11 +80,14 @@ onboarding wellness survey — save these as the personnel's **first
 
 ## Personnel / Profile
 
+`fullName` everywhere below is **first + last name only** — no rank
+prefix (rank is always its own separate field).
+
 ### `GET /personnel/me`
 **Response:**
 ```json
 {
-  "fullName": "Rifleman Arjun Kumar",
+  "fullName": "Arjun Kumar",
   "rank": "Rifleman",
   "verified": true,
   "personalInfo": {
@@ -100,7 +103,7 @@ onboarding wellness survey — save these as the personnel's **first
 **Response:**
 ```json
 {
-  "personnel": { "fullName": "Rifleman Arjun" },
+  "personnel": { "fullName": "Arjun Kumar" },
   "wellnessStatus": {
     "label": "Balanced",
     "description": "You're maintaining a good balance of duty and recovery.",
@@ -123,7 +126,11 @@ onboarding wellness survey — save these as the personnel's **first
   "description": "string",
   "lastUpdated": "Today, 7:30 AM",
   "pillars": [
-    { "key": "dutyBalance", "label": "Duty Balance", "icon": "string", "score": 72, "status": "Good", "color": "#7c3aed" }
+    { "key": "dutyBalance", "label": "Duty Balance", "score": 72, "status": "Good" },
+    { "key": "restRecovery", "label": "Rest & Recovery", "score": 82, "status": "Excellent" },
+    { "key": "nightDutyImpact", "label": "Night Duty Impact", "score": 68, "status": "Manageable" },
+    { "key": "deploymentLoad", "label": "Deployment Load", "score": 74, "status": "Good" },
+    { "key": "recoveryConsistency", "label": "Recovery Consistency", "score": 79, "status": "Good" }
   ],
   "influencingFactors": [
     { "label": "Duty Hours", "value": "Moderate", "icon": "string", "color": "#16a34a" }
@@ -135,6 +142,11 @@ onboarding wellness survey — save these as the personnel's **first
   }
 }
 ```
+`pillars` is always **all 5** of the ones shown above (`key` is fixed —
+don't add/rename/drop keys without telling the app side, since the app
+maps each `key` to its own icon/color). No `icon`/`color` fields here —
+those are purely presentational and the app decides them locally from
+`key`.
 `score`, `pillars`, `influencingFactors`, `trend` are all computed from
 `hr_indicators` + `self_assessments` — see DB notes below.
 

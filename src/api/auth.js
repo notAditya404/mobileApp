@@ -6,7 +6,7 @@ const MOCK_LOGIN_RESPONSE = {
   token: "mock-token-123",
   personnel: {
     id: 1,
-    fullName: "Rifleman Arjun Kumar",
+    fullName: "Arjun Kumar",
     employeeId: "CAPF123456",
     rank: "Rifleman",
   },

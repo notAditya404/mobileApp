@@ -2,7 +2,7 @@ import { apiRequest } from "./client";
 import { USE_MOCK_DATA } from "./config";
 
 const MOCK_PROFILE = {
-  fullName: "Rifleman Arjun Kumar",
+  fullName: "Arjun Kumar",
   rank: "Rifleman",
   verified: true,
   personalInfo: {

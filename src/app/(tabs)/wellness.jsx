@@ -5,6 +5,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { getWellnessOverview } from "@/api/wellness";
 import { Skeleton } from "@/components/Skeleton";
 
+// Pillar ka icon/color purely presentational hai - backend sirf "key"
+// bhejta hai, styling yahan se aati hai (isliye API response halka
+// rehta hai aur design badalna ho toh backend touch nahi karna padta)
+const PILLAR_STYLES = {
+  dutyBalance: { icon: "time-outline", color: "#7c3aed" },
+  restRecovery: { icon: "bed-outline", color: "#16a34a" },
+  nightDutyImpact: { icon: "moon-outline", color: "#ea580c" },
+  deploymentLoad: { icon: "shield-outline", color: "#2563eb" },
+  recoveryConsistency: { icon: "heart-outline", color: "#db2777" },
+};
+const DEFAULT_PILLAR_STYLE = { icon: "ellipse-outline", color: "#64748b" };
+
 export default function Wellness() {
   const [data, setData] = useState(null);
 
@@ -58,29 +70,32 @@ export default function Wellness() {
         <Text className="text-slate-900 text-lg font-bold mt-6 mb-3">Wellness Pillars</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row gap-3">
-            {pillars.map((pillar) => (
-              <View key={pillar.key} className="bg-white rounded-2xl p-4 w-32 shadow-sm">
-                <View
-                  className="w-9 h-9 rounded-full items-center justify-center mb-2"
-                  style={{ backgroundColor: `${pillar.color}1A` }}
-                >
-                  <Ionicons name={pillar.icon} size={18} color={pillar.color} />
-                </View>
-                <Text className="text-slate-500 text-xs">{pillar.label}</Text>
-                <Text className="text-slate-900 font-bold text-base mt-1">
-                  {pillar.score}/100
-                </Text>
-                <View className="h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
+            {pillars.map((pillar) => {
+              const style = PILLAR_STYLES[pillar.key] ?? DEFAULT_PILLAR_STYLE;
+              return (
+                <View key={pillar.key} className="bg-white rounded-2xl p-4 w-32 shadow-sm">
                   <View
-                    className="h-1.5 rounded-full"
-                    style={{ width: `${pillar.score}%`, backgroundColor: pillar.color }}
-                  />
+                    className="w-9 h-9 rounded-full items-center justify-center mb-2"
+                    style={{ backgroundColor: `${style.color}1A` }}
+                  >
+                    <Ionicons name={style.icon} size={18} color={style.color} />
+                  </View>
+                  <Text className="text-slate-500 text-xs">{pillar.label}</Text>
+                  <Text className="text-slate-900 font-bold text-base mt-1">
+                    {pillar.score}/100
+                  </Text>
+                  <View className="h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
+                    <View
+                      className="h-1.5 rounded-full"
+                      style={{ width: `${pillar.score}%`, backgroundColor: style.color }}
+                    />
+                  </View>
+                  <Text className="text-xs mt-2" style={{ color: style.color }}>
+                    {pillar.status}
+                  </Text>
                 </View>
-                <Text className="text-xs mt-2" style={{ color: pillar.color }}>
-                  {pillar.status}
-                </Text>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </ScrollView>
 

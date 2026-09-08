@@ -9,13 +9,16 @@ const MOCK_WELLNESS = {
     "Your recent duty, rest and workload patterns are within a healthy range.",
   lastUpdated: "Today, 7:30 AM",
 
-  // Yeh 5 "pillars" horizontally scroll hote hain
+  // Yeh 5 "pillars" horizontally scroll hote hain. Icon/color yahan
+  // se nahi aate - woh purely presentational hain, PILLAR_STYLES
+  // (wellness.jsx mein) "key" ke hisaab se frontend khud decide karta hai.
+  // Backend ko sirf key/label/score/status bhejne hain.
   pillars: [
-    { key: "dutyBalance", label: "Duty Balance", icon: "time-outline", score: 72, status: "Good", color: "#7c3aed" },
-    { key: "restRecovery", label: "Rest & Recovery", icon: "bed-outline", score: 82, status: "Excellent", color: "#16a34a" },
-    { key: "nightDutyImpact", label: "Night Duty Impact", icon: "moon-outline", score: 68, status: "Manageable", color: "#ea580c" },
-    { key: "deploymentLoad", label: "Deployment Load", icon: "shield-outline", score: 74, status: "Good", color: "#2563eb" },
-    { key: "recoveryConsistency", label: "Recovery Consistency", icon: "heart-outline", score: 79, status: "Good", color: "#db2777" },
+    { key: "dutyBalance", label: "Duty Balance", score: 72, status: "Good" },
+    { key: "restRecovery", label: "Rest & Recovery", score: 82, status: "Excellent" },
+    { key: "nightDutyImpact", label: "Night Duty Impact", score: 68, status: "Manageable" },
+    { key: "deploymentLoad", label: "Deployment Load", score: 74, status: "Good" },
+    { key: "recoveryConsistency", label: "Recovery Consistency", score: 79, status: "Good" },
   ],
 
   // "What is influencing my wellness?" grid
