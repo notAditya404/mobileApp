@@ -217,14 +217,10 @@ Each call creates a new `self_assessments` row.
 **Body:** `{ "requestType": "welfare" | "medical" | "general", "description": "string" }`
 **Response:** same shape as one item above (`{ id, title, submittedAt, status }`)
 
-### `GET /wellness-resources`
-**Response:**
-```json
-[
-  { "title": "Rest & Recovery", "description": "short text", "details": "longer guide text shown when tapped", "icon": "string", "color": "#16a34a" }
-]
-```
-Static content — could be hardcoded on the backend or made admin-editable later. Currently 4 resources: Rest & Recovery, Sleep Better, Managing Stress, Stay Active.
+**Wellness Resources** (Rest & Recovery, Sleep Better, Managing Stress,
+Stay Active) — **no endpoint needed**, this stays hardcoded on the app
+side (`WELLNESS_RESOURCES` in `src/api/support.js`). Nothing for the
+backend to build here.
 
 ---
 

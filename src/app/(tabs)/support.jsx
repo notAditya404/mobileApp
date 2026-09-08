@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { getSupportRequests, getWellnessResources, createSupportRequest } from "@/api/support";
+import { getSupportRequests, createSupportRequest, WELLNESS_RESOURCES } from "@/api/support";
 import { Skeleton } from "@/components/Skeleton";
 
 const STATUS_COLORS = {
@@ -21,14 +21,12 @@ const STATUS_COLORS = {
 
 export default function Support() {
   const [requests, setRequests] = useState(null);
-  const [resources, setResources] = useState(null);
 
   // Resource card tap karne par isme woh resource set hoti hai (detail modal)
   const [selectedResource, setSelectedResource] = useState(null);
 
   useEffect(() => {
     getSupportRequests().then(setRequests);
-    getWellnessResources().then(setResources);
   }, []);
 
   async function handleRequestSupport() {
@@ -40,7 +38,7 @@ export default function Support() {
     Alert.alert("Request Sent", "Your support request has been submitted. A welfare officer will reach out to you.");
   }
 
-  if (!requests || !resources) {
+  if (!requests) {
     return <SupportSkeleton />;
   }
 
@@ -103,7 +101,7 @@ export default function Support() {
         {/* Resources */}
         <Text className="text-slate-900 text-lg font-bold mt-6 mb-3">Wellness Resources</Text>
         <View className="flex-row flex-wrap gap-3">
-          {resources.map((resource) => (
+          {WELLNESS_RESOURCES.map((resource) => (
             <Pressable
               key={resource.title}
               className="bg-white rounded-2xl p-4 shadow-sm"

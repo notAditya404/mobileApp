@@ -18,8 +18,10 @@ const MOCK_SUPPORT_REQUESTS = [
   },
 ];
 
-// "details" wala text card tap karne par expanded view mein dikhta hai
-const MOCK_RESOURCES = [
+// Yeh static content hai - koi backend endpoint nahi, seedha yahan se
+// import hota hai. "details" wala text card tap karne par expanded
+// view mein dikhta hai.
+export const WELLNESS_RESOURCES = [
   {
     title: "Rest & Recovery",
     description: "Tips to improve rest during irregular duties.",
@@ -60,14 +62,6 @@ export async function getSupportRequests() {
     return MOCK_SUPPORT_REQUESTS;
   }
   return apiRequest("/personnel/me/support-requests");
-}
-
-// Backend endpoint (jab ready ho): GET /wellness-resources
-export async function getWellnessResources() {
-  if (USE_MOCK_DATA) {
-    return MOCK_RESOURCES;
-  }
-  return apiRequest("/wellness-resources");
 }
 
 // Backend endpoint (jab ready ho): POST /personnel/me/support-requests
