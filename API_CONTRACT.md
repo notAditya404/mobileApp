@@ -1,26 +1,45 @@
 # MANOVA — Mobile App API Contract
 
-## Conventions
+Hey! This doc walks through everything the MANOVA mobile app (React
+Native / Expo) needs from your backend to work for real. Right now the
+app runs entirely on mock data — every screen just returns fake JSON
+locally instead of calling a server. Once the endpoints below exist,
+we flip one config flag (`USE_MOCK_DATA` in `src/api/config.js`) to
+`false` and point `BASE_URL` at your server, and the app starts
+talking to the real thing. Nothing else in the app needs to change.
 
-- All requests/responses are JSON (`Content-Type: application/json`)
-- After login/signup, the app stores the returned `token` and sends it on
-  every subsequent request as `Authorization: Bearer <token>`
-  (handled centrally in `src/api/client.js`)
-- `GET /personnel/me...` endpoints should resolve "me" from the auth token
-  (JWT/session), not a client-supplied ID
-- Token type: recommend **JWT** (pairs naturally with the `Bearer` scheme
-  above, and Spring Security has strong built-in support for it). The app
-  treats the token as an opaque string either way — it doesn't decode it.
-- **Any request that returns HTTP `401`** is treated by the app as "session
-  expired" — it automatically clears the stored token and sends the user
-  back to Welcome/Login. This is meant for missing/invalid/expired tokens
-  on authenticated endpoints. A `401` from `/auth/login` itself (wrong
-  password) is harmless too — there's no session to clear yet, and the
-  login screen shows its own "check your credentials" message regardless
-  of the exact status code.
-- Every source file under `src/api/*.js` in the repo has the exact request
-  body / response shape as a comment right above the function — this doc
-  is a summary of those
+Every function in `src/api/*.js` already has a comment right above it
+spelling out the exact endpoint, request body, and response shape —
+this doc is just a readable summary of all of those in one place.
+
+## A few ground rules before the endpoints
+
+Everything is plain JSON — requests and responses both use
+`Content-Type: application/json`.
+
+Once someone logs in or signs up, the app hangs onto the `token` you
+send back and attaches it to every request after that as
+`Authorization: Bearer <token>`. This is already wired up centrally in
+one place (`src/api/client.js`), so nothing per-screen needs to worry
+about it. For `GET /personnel/me...` style endpoints, please resolve
+"me" from that token rather than trusting anything the client sends —
+we never pass a personnel ID explicitly.
+
+On the token format itself: we'd recommend **JWT**. It pairs naturally
+with the `Bearer` scheme above, and Spring Security has solid built-in
+support for it. That said, the app treats whatever you send back as a
+completely opaque string — it never decodes or inspects it, just
+stores it and forwards it.
+
+One behavior worth knowing about: if **any** authenticated request
+comes back with a `401`, the app treats that as "your session expired"
+— it automatically clears the stored token and drops the user back to
+the Welcome/Login screen. So please reserve `401` specifically for
+missing, invalid, or expired tokens on authenticated endpoints. A
+`401` from `/auth/login` itself (say, wrong password) is totally fine
+too — there's no session yet for the app to clear, and the login
+screen shows its own "check your credentials" message regardless of
+the exact status code you return.
 
 ---
 
@@ -58,21 +77,25 @@
   "password": "string"
 }
 ```
-`sleepHours` / `dietQuality` / `workPressure` / `lastLeave` come from the
-onboarding wellness survey — save these as the personnel's **first
-`self_assessments` row**, not just account fields.
-**Response:** same shape as login (`{ token, personnel }`)
+Worth flagging: `sleepHours`, `dietQuality`, `workPressure`, and
+`lastLeave` come from a short wellness survey we show during
+onboarding, not just plain account fields. It'd make sense to save
+these as the personnel's very first `self_assessments` row, so the
+signup itself becomes their baseline data point.
+
+**Response:** same shape as login — `{ token, personnel }`
 
 ### `POST /auth/change-password`
 **Body:** `{ currentPassword: string, newPassword: string }`
-**Response:** `{ success: true }` (or an error status if current password is wrong)
+**Response:** `{ success: true }` (or an appropriate error if the current password is wrong)
 
 ---
 
 ## Personnel / Profile
 
-`fullName` everywhere below is **first + last name only** — no rank
-prefix (rank is always its own separate field).
+Quick note that applies everywhere below: `fullName` is always just
+**first + last name**, never with rank baked into it — rank shows up
+as its own separate field wherever it's relevant.
 
 ### `GET /personnel/me`
 **Response:**
@@ -140,17 +163,23 @@ prefix (rank is always its own separate field).
   }
 }
 ```
-`pillars` is always **all 5**, `influencingFactors` is always all 8
-shown above (`key` is fixed for both — don't add/rename/drop keys
-without telling the app side, since the app maps each `key` to its own
-icon/color locally). **No `icon`/`color` fields on either** — purely
-presentational, the app owns them.
-`score`, `pillars`, `influencingFactors`, `trend` are all computed from
-`hr_indicators` + `self_assessments` — see DB notes below.
+A couple of things to keep in mind here: `pillars` should always be
+exactly those 5, and `influencingFactors` always those 8 — the `key`
+on each one is fixed, since the app uses it to look up its own icon
+and color locally. If you ever need to add, rename, or drop a key,
+just give us a heads up first so the app side can match it. Speaking
+of which — you won't see `icon` or `color` fields anywhere in this
+response. Those are purely visual, so we kept them out of the API
+entirely and let the app decide how things look based on `key`.
+
+As for where the numbers themselves come from: `score`, `pillars`,
+`influencingFactors`, and `trend` all get computed from
+`hr_indicators` plus `self_assessments` — see the database section
+near the bottom for how those tables fit together.
 
 ### `GET /personnel/me/ai-insights`
-This is the ML model's output — backend just passes it through from the
-ML service to the app.
+This one's basically a pass-through — it's the ML model's output, and
+the backend's job here is just to relay it to the app as-is.
 **Response:**
 ```json
 {
@@ -167,16 +196,18 @@ ML service to the app.
   "recommendation": { "title": "string", "description": "string" }
 }
 ```
-`contributingFactors[].key` must be one of `nightDutyFrequency` /
-`consecutiveDutyDays` / `restGap` (app maps each to its own icon) —
-if the ML model surfaces a genuinely new factor type, flag it so we
-add a matching icon on the app side first. `impact` must be exactly
-`"High Impact"` / `"Moderate Impact"` / `"Low Impact"` (app derives
-the color from this string — no separate `color` field needed).
+Same idea as the pillars above: `contributingFactors[].key` needs to
+be one of `nightDutyFrequency`, `consecutiveDutyDays`, or `restGap`,
+since that's what the app uses to pick an icon. If the ML model ever
+starts surfacing a genuinely new kind of factor, just flag it to us
+first so we can add a matching icon before it shows up blank. And
+`impact` needs to be exactly `"High Impact"`, `"Moderate Impact"`, or
+`"Low Impact"` — the app derives its own color straight from that
+text, so there's no separate `color` field to send.
 
 ---
 
-## Self-Assessment (daily check-in)
+## Self-Assessment (the daily check-in)
 
 ### `GET /personnel/me/self-assessments/today`
 **Response:** `{ "submittedToday": true }`
@@ -184,7 +215,8 @@ the color from this string — no separate `color` field needed).
 ### `POST /personnel/me/self-assessments`
 **Body:** `{ "mood": "good", "sleepHours": "7-8 hrs", "stressLevel": "Low" }`
 **Response:** `{ "success": true }`
-Each call creates a new `self_assessments` row.
+Every call here should create a fresh `self_assessments` row — this is
+the ongoing trend data the AI model leans on over time.
 
 ---
 
@@ -202,16 +234,19 @@ Each call creates a new `self_assessments` row.
   }
 ]
 ```
-`status` values used by the UI: `"Submitted"`, `"Acknowledged"`, `"In Progress"` (any other string is displayed but shown in a neutral gray).
+The three `status` values the UI actively styles are `"Submitted"`,
+`"Acknowledged"`, and `"In Progress"` — anything else still displays
+fine, just falls back to a neutral gray badge.
 
 ### `POST /personnel/me/support-requests`
 **Body:** `{ "requestType": "welfare" | "medical" | "general", "description": "string" }`
-**Response:** same shape as one item above (`{ id, title, submittedAt, status }`)
+**Response:** same shape as one of the items above — `{ id, title, submittedAt, status }`
 
-**Wellness Resources** (Rest & Recovery, Sleep Better, Managing Stress,
-Stay Active) — **no endpoint needed**, this stays hardcoded on the app
-side (`WELLNESS_RESOURCES` in `src/api/support.js`). Nothing for the
-backend to build here.
+One thing that's deliberately **not** here: wellness resources (Rest &
+Recovery, Sleep Better, Managing Stress, Stay Active). There's no
+endpoint for those — they're just hardcoded on the app side
+(`WELLNESS_RESOURCES` in `src/api/support.js`), so nothing to build
+for that part.
 
 ---
 
@@ -222,15 +257,23 @@ backend to build here.
 
 ---
 
-## Database tables this implies (from our earlier design discussion)
+## How this maps to a database
 
-- `personnel` — mobile app signups
-- `admins` — web dashboard signups
+This isn't a strict spec, just a rundown of the tables we'd talked
+through earlier and where each one plugs into the endpoints above —
+useful context if you're sketching out the schema:
+
+- `personnel` — everyone who signs up through the mobile app
+- `admins` — everyone who signs up through the web dashboard
 - `doctors`
-- `admin_personnel` — links admin ↔ personnel by email (admin adds a personnel's email; auto-links once that personnel registers)
-- `self_assessments` — daily check-ins + the initial signup survey
-- `hr_indicators` — duty logs (raw shift data), used to compute wellness score/pillars
-- `stress_predictions` — ML model output, feeds `/ai-insights`
+- `admin_personnel` — links an admin to a personnel by email; an admin
+  adds someone's email, and it auto-links once that person registers
+- `self_assessments` — every daily check-in, plus the initial signup
+  survey
+- `hr_indicators` — raw duty logs (shift data), which is what the
+  wellness score and pillars actually get computed from
+- `stress_predictions` — the ML model's output, feeding `/ai-insights`
 - `support_requests`
-- `doctor_allotments` — admin assigns a doctor to a personnel, optionally linked to a `support_requests` row
+- `doctor_allotments` — an admin assigning a doctor to a personnel,
+  optionally tied back to a `support_requests` row
 - `notifications`
