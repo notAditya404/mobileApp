@@ -9,30 +9,31 @@ const MOCK_AI_INSIGHTS = {
   outlookScore: 78,
   outlookLabel: "Balanced",
 
+  // "icon" purely presentational hai (frontend "key" se decide karta
+  // hai). "color" bhi nahi bhejna - frontend "impact" text se hi
+  // (High/Moderate/Low) color derive kar leta hai, alag field ki
+  // zaroorat nahi.
   contributingFactors: [
     {
+      key: "nightDutyFrequency",
       label: "Night Duty Frequency",
       description: "Slight increase in night duties in the last 2 weeks.",
       impact: "High Impact",
       impactPercent: 80,
-      color: "#dc2626",
-      icon: "moon-outline",
     },
     {
+      key: "consecutiveDutyDays",
       label: "Consecutive Duty Days",
       description: "You had longer stretches of consecutive duties.",
       impact: "Moderate Impact",
       impactPercent: 55,
-      color: "#ea580c",
-      icon: "calendar-outline",
     },
     {
+      key: "restGap",
       label: "Rest Gap",
       description: "Rest gaps between duties are improving.",
       impact: "Low Impact",
       impactPercent: 25,
-      color: "#16a34a",
-      icon: "bed-outline",
     },
   ],
 

@@ -5,6 +5,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { getAiInsights } from "@/api/aiInsights";
 import { Skeleton } from "@/components/Skeleton";
 
+// Icon purely presentational - frontend "key" se decide karta hai
+const CONTRIBUTING_FACTOR_ICONS = {
+  nightDutyFrequency: "moon-outline",
+  consecutiveDutyDays: "calendar-outline",
+  restGap: "bed-outline",
+};
+const DEFAULT_FACTOR_ICON = "ellipse-outline";
+
+// Color backend se nahi aata - "impact" text se hi severity color
+// derive kar lete hain, alag field ki zaroorat nahi
+const IMPACT_COLORS = {
+  "High Impact": "#dc2626",
+  "Moderate Impact": "#ea580c",
+  "Low Impact": "#16a34a",
+};
+const DEFAULT_IMPACT_COLOR = "#64748b";
+
 export default function AiInsights() {
   const [data, setData] = useState(null);
 
@@ -57,36 +74,40 @@ export default function AiInsights() {
         {/* Contributing factors */}
         <Text className="text-slate-900 text-lg font-bold mt-6 mb-3">Contributing Factors</Text>
         <View className="bg-white rounded-2xl shadow-sm">
-          {contributingFactors.map((factor, index) => (
-            <View
-              key={factor.label}
-              className={`flex-row items-center p-4 ${
-                index < contributingFactors.length - 1 ? "border-b border-slate-100" : ""
-              }`}
-            >
+          {contributingFactors.map((factor, index) => {
+            const icon = CONTRIBUTING_FACTOR_ICONS[factor.key] ?? DEFAULT_FACTOR_ICON;
+            const color = IMPACT_COLORS[factor.impact] ?? DEFAULT_IMPACT_COLOR;
+            return (
               <View
-                className="w-10 h-10 rounded-full items-center justify-center mr-3"
-                style={{ backgroundColor: `${factor.color}1A` }}
+                key={factor.key}
+                className={`flex-row items-center p-4 ${
+                  index < contributingFactors.length - 1 ? "border-b border-slate-100" : ""
+                }`}
               >
-                <Ionicons name={factor.icon} size={18} color={factor.color} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-slate-900 font-semibold">{factor.label}</Text>
-                <Text className="text-slate-400 text-xs mt-0.5">{factor.description}</Text>
-                <View className="flex-row items-center gap-2 mt-2">
-                  <Text className="text-xs font-semibold" style={{ color: factor.color }}>
-                    {factor.impact}
-                  </Text>
+                <View
+                  className="w-10 h-10 rounded-full items-center justify-center mr-3"
+                  style={{ backgroundColor: `${color}1A` }}
+                >
+                  <Ionicons name={icon} size={18} color={color} />
                 </View>
-                <View className="h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
-                  <View
-                    className="h-1.5 rounded-full"
-                    style={{ width: `${factor.impactPercent}%`, backgroundColor: factor.color }}
-                  />
+                <View className="flex-1">
+                  <Text className="text-slate-900 font-semibold">{factor.label}</Text>
+                  <Text className="text-slate-400 text-xs mt-0.5">{factor.description}</Text>
+                  <View className="flex-row items-center gap-2 mt-2">
+                    <Text className="text-xs font-semibold" style={{ color }}>
+                      {factor.impact}
+                    </Text>
+                  </View>
+                  <View className="h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+                    <View
+                      className="h-1.5 rounded-full"
+                      style={{ width: `${factor.impactPercent}%`, backgroundColor: color }}
+                    />
+                  </View>
                 </View>
               </View>
-            </View>
-          ))}
+            );
+          })}
         </View>
 
         {/* AI prediction */}

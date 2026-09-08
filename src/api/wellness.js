@@ -21,16 +21,17 @@ const MOCK_WELLNESS = {
     { key: "recoveryConsistency", label: "Recovery Consistency", score: 79, status: "Good" },
   ],
 
-  // "What is influencing my wellness?" grid
+  // "What is influencing my wellness?" grid. Icon/color yahan se nahi
+  // aate (pillars jaisa hi pattern) - frontend "key" se decide karta hai.
   influencingFactors: [
-    { label: "Duty Hours", value: "Moderate", icon: "calendar-outline", color: "#16a34a" },
-    { label: "Night Duties", value: "Within limits", icon: "moon-outline", color: "#7c3aed" },
-    { label: "Rest Gap", value: "Good", icon: "time-outline", color: "#2563eb" },
-    { label: "Consecutive Duty Days", value: "Normal", icon: "trending-up-outline", color: "#ea580c" },
-    { label: "Workload Trend", value: "Stable", icon: "briefcase-outline", color: "#db2777" },
-    { label: "Deployment Duration", value: "28 Days", icon: "shield-checkmark-outline", color: "#0891b2" },
-    { label: "Leave / Recovery Pattern", value: "Good", icon: "calendar-outline", color: "#7c3aed" },
-    { label: "Wearable Data", value: "Optimal", icon: "watch-outline", color: "#16a34a" },
+    { key: "dutyHours", label: "Duty Hours", value: "Moderate" },
+    { key: "nightDuties", label: "Night Duties", value: "Within limits" },
+    { key: "restGap", label: "Rest Gap", value: "Good" },
+    { key: "consecutiveDutyDays", label: "Consecutive Duty Days", value: "Normal" },
+    { key: "workloadTrend", label: "Workload Trend", value: "Stable" },
+    { key: "deploymentDuration", label: "Deployment Duration", value: "28 Days" },
+    { key: "leaveRecoveryPattern", label: "Leave / Recovery Pattern", value: "Good" },
+    { key: "wearableData", label: "Wearable Data", value: "Optimal" },
   ],
 
   // 30 din ka trend - har number ek din ka wellness score hai

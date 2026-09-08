@@ -133,7 +133,14 @@ prefix (rank is always its own separate field).
     { "key": "recoveryConsistency", "label": "Recovery Consistency", "score": 79, "status": "Good" }
   ],
   "influencingFactors": [
-    { "label": "Duty Hours", "value": "Moderate", "icon": "string", "color": "#16a34a" }
+    { "key": "dutyHours", "label": "Duty Hours", "value": "Moderate" },
+    { "key": "nightDuties", "label": "Night Duties", "value": "Within limits" },
+    { "key": "restGap", "label": "Rest Gap", "value": "Good" },
+    { "key": "consecutiveDutyDays", "label": "Consecutive Duty Days", "value": "Normal" },
+    { "key": "workloadTrend", "label": "Workload Trend", "value": "Stable" },
+    { "key": "deploymentDuration", "label": "Deployment Duration", "value": "28 Days" },
+    { "key": "leaveRecoveryPattern", "label": "Leave / Recovery Pattern", "value": "Good" },
+    { "key": "wearableData", "label": "Wearable Data", "value": "Optimal" }
   ],
   "trend": {
     "rangeLabel": "Last 30 Days",
@@ -142,11 +149,11 @@ prefix (rank is always its own separate field).
   }
 }
 ```
-`pillars` is always **all 5** of the ones shown above (`key` is fixed —
-don't add/rename/drop keys without telling the app side, since the app
-maps each `key` to its own icon/color). No `icon`/`color` fields here —
-those are purely presentational and the app decides them locally from
-`key`.
+`pillars` is always **all 5**, `influencingFactors` is always all 8
+shown above (`key` is fixed for both — don't add/rename/drop keys
+without telling the app side, since the app maps each `key` to its own
+icon/color locally). **No `icon`/`color` fields on either** — purely
+presentational, the app owns them.
 `score`, `pillars`, `influencingFactors`, `trend` are all computed from
 `hr_indicators` + `self_assessments` — see DB notes below.
 
@@ -161,12 +168,20 @@ ML service to the app.
   "outlookScore": 78,
   "outlookLabel": "Balanced",
   "contributingFactors": [
-    { "label": "string", "description": "string", "impact": "High Impact", "impactPercent": 80, "color": "#dc2626", "icon": "string" }
+    { "key": "nightDutyFrequency", "label": "string", "description": "string", "impact": "High Impact", "impactPercent": 80 },
+    { "key": "consecutiveDutyDays", "label": "string", "description": "string", "impact": "Moderate Impact", "impactPercent": 55 },
+    { "key": "restGap", "label": "string", "description": "string", "impact": "Low Impact", "impactPercent": 25 }
   ],
   "prediction": { "text": "string", "riskPercent": 65, "riskLabel": "Moderate" },
   "recommendation": { "title": "string", "description": "string" }
 }
 ```
+`contributingFactors[].key` must be one of `nightDutyFrequency` /
+`consecutiveDutyDays` / `restGap` (app maps each to its own icon) —
+if the ML model surfaces a genuinely new factor type, flag it so we
+add a matching icon on the app side first. `impact` must be exactly
+`"High Impact"` / `"Moderate Impact"` / `"Low Impact"` (app derives
+the color from this string — no separate `color` field needed).
 
 ---
 

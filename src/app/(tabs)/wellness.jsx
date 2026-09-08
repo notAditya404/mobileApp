@@ -17,6 +17,19 @@ const PILLAR_STYLES = {
 };
 const DEFAULT_PILLAR_STYLE = { icon: "ellipse-outline", color: "#64748b" };
 
+// Same pattern for the "influencing factors" grid
+const INFLUENCING_FACTOR_STYLES = {
+  dutyHours: { icon: "calendar-outline", color: "#16a34a" },
+  nightDuties: { icon: "moon-outline", color: "#7c3aed" },
+  restGap: { icon: "time-outline", color: "#2563eb" },
+  consecutiveDutyDays: { icon: "trending-up-outline", color: "#ea580c" },
+  workloadTrend: { icon: "briefcase-outline", color: "#db2777" },
+  deploymentDuration: { icon: "shield-checkmark-outline", color: "#0891b2" },
+  leaveRecoveryPattern: { icon: "calendar-outline", color: "#7c3aed" },
+  wearableData: { icon: "watch-outline", color: "#16a34a" },
+};
+const DEFAULT_FACTOR_STYLE = { icon: "ellipse-outline", color: "#64748b" };
+
 export default function Wellness() {
   const [data, setData] = useState(null);
 
@@ -107,15 +120,18 @@ export default function Wellness() {
           These authorized factors are contributing to your current status.
         </Text>
         <View className="flex-row flex-wrap gap-3">
-          {influencingFactors.map((factor) => (
-            <View key={factor.label} className="bg-white rounded-2xl p-3 items-center" style={{ width: "31%" }}>
-              <Ionicons name={factor.icon} size={20} color={factor.color} />
-              <Text className="text-slate-700 text-xs text-center mt-2">{factor.label}</Text>
-              <Text className="text-xs font-semibold text-center mt-1" style={{ color: factor.color }}>
-                {factor.value}
-              </Text>
-            </View>
-          ))}
+          {influencingFactors.map((factor) => {
+            const style = INFLUENCING_FACTOR_STYLES[factor.key] ?? DEFAULT_FACTOR_STYLE;
+            return (
+              <View key={factor.key} className="bg-white rounded-2xl p-3 items-center" style={{ width: "31%" }}>
+                <Ionicons name={style.icon} size={20} color={style.color} />
+                <Text className="text-slate-700 text-xs text-center mt-2">{factor.label}</Text>
+                <Text className="text-xs font-semibold text-center mt-1" style={{ color: style.color }}>
+                  {factor.value}
+                </Text>
+              </View>
+            );
+          })}
         </View>
 
         {/* Trend */}
