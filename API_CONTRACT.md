@@ -17,6 +17,16 @@ All endpoints below are prefixed with the configured `BASE_URL` (currently
   (handled centrally in `src/api/client.js`)
 - `GET /personnel/me...` endpoints should resolve "me" from the auth token
   (JWT/session), not a client-supplied ID
+- Token type: recommend **JWT** (pairs naturally with the `Bearer` scheme
+  above, and Spring Security has strong built-in support for it). The app
+  treats the token as an opaque string either way — it doesn't decode it.
+- **Any request that returns HTTP `401`** is treated by the app as "session
+  expired" — it automatically clears the stored token and sends the user
+  back to Welcome/Login. This is meant for missing/invalid/expired tokens
+  on authenticated endpoints. A `401` from `/auth/login` itself (wrong
+  password) is harmless too — there's no session to clear yet, and the
+  login screen shows its own "check your credentials" message regardless
+  of the exact status code.
 - Every source file under `src/api/*.js` in the repo has the exact request
   body / response shape as a comment right above the function — this doc
   is a summary of those

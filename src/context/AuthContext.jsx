@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
+import { registerUnauthorizedHandler } from "@/api/authEvents";
 
 const AuthContext = createContext(null);
 
@@ -29,6 +30,11 @@ export function AuthProvider({ children }) {
     await SecureStore.deleteItemAsync("authToken");
     setIsLoggedIn(false);
   }
+
+  // apiRequest() 401 milne par isi logout() ko trigger karega
+  useEffect(() => {
+    registerUnauthorizedHandler(logout);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, isLoading, login, logout }}>

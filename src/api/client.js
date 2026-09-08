@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { BASE_URL } from "./config";
+import { notifyUnauthorized } from "./authEvents";
 
 // Yeh ek common function hai jo poore app mein backend ko call karne
 // ke liye use hoga - isse har jagah alag alag fetch() likhne ki
@@ -24,6 +25,13 @@ export async function apiRequest(endpoint, options = {}) {
       ...options.headers,
     },
   });
+
+  if (response.status === 401) {
+    // Token expire ho gaya ya invalid hai - user ko automatically
+    // logout kar do (AuthContext ne apna logout() yahan register kiya hai)
+    notifyUnauthorized();
+    throw new Error("Session expired. Please log in again.");
+  }
 
   if (!response.ok) {
     throw new Error(`API error ${response.status}: ${response.statusText}`);
