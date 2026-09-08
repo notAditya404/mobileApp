@@ -103,9 +103,19 @@ as its own separate field wherever it's relevant.
     "dutyLoad": { "value": "Moderate", "note": "Within healthy range" },
     "avgRestGap": { "value": "8.1 hrs", "note": "Good" },
     "nightDuties": { "value": "2", "note": "Manageable" }
+  },
+  "assignedDuty": {
+    "date": "09 Sept 2024",
+    "hours": 10,
+    "remark": "Perimeter patrol - Gate 3"
   }
 }
 ```
+`assignedDuty` is whatever the admin most recently allotted for this
+personnel from the web dashboard's Scheduling tab (working hours + a
+remark for what needs to be done) — send `null` when nothing's been
+assigned yet. This is the same `hr_indicators` row the wellness score
+below gets computed from.
 
 ### `GET /personnel/me/wellness`
 **Response:**
@@ -226,6 +236,32 @@ for that part.
 
 ---
 
+## Leave
+
+### `GET /personnel/me/leave-requests`
+**Response:**
+```json
+[
+  {
+    "id": "LV-240903-01",
+    "fromDate": "09 Sept 2024",
+    "toDate": "10 Sept 2024",
+    "reason": "Medical appointment",
+    "status": "Approved",
+    "submittedAt": "03 Sept 2024, 11:00 AM"
+  }
+]
+```
+`status` is one of `"Pending"`, `"Approved"`, or `"Rejected"` — the
+admin decides from the web dashboard's Scheduling tab, same place
+duty gets assigned.
+
+### `POST /personnel/me/leave-requests`
+**Body:** `{ "fromDate": "string", "toDate": "string", "reason": "string" }`
+**Response:** same shape as above, `status` starts as `"Pending"`.
+
+---
+
 ## Settings
 
 ### `GET /personnel/me/notification-settings` / `PUT /personnel/me/notification-settings`
@@ -246,10 +282,15 @@ useful context if you're sketching out the schema:
   adds someone's email, and it auto-links once that person registers
 - `self_assessments` — every daily check-in, plus the initial signup
   survey
-- `hr_indicators` — raw duty logs (shift data), which is what the
-  wellness score and pillars actually get computed from
+- `hr_indicators` — raw duty logs (shift data): both the admin's
+  duty assignments from the web dashboard (working hours + remark)
+  and eventually any other shift data feed into this table, and it's
+  what the wellness score and pillars actually get computed from
 - `stress_predictions` — the ML model's output, feeding `/ai-insights`
 - `support_requests`
 - `doctor_allotments` — an admin assigning a doctor to a personnel,
   optionally tied back to a `support_requests` row
+- `leave_requests` — personnel applies from the mobile app, admin
+  approves/rejects from the web dashboard's Scheduling tab; rest
+  periods here matter to the AI model the same way duty does
 - `notifications`

@@ -12,7 +12,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getSupportRequests, createSupportRequest, WELLNESS_RESOURCES } from "@/api/support";
+import { getLeaveRequests, createLeaveRequest } from "@/api/leave";
 import { Skeleton } from "@/components/Skeleton";
+
+const LEAVE_STATUS_COLORS = {
+  Pending: "#d97706",
+  Approved: "#16a34a",
+  Rejected: "#dc2626",
+};
 
 const STATUS_COLORS = {
   Acknowledged: "#16a34a",
@@ -39,8 +46,17 @@ export default function Support() {
   const [requestDescription, setRequestDescription] = useState("");
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
 
+  // Leave requests state
+  const [leaveRequests, setLeaveRequests] = useState(null);
+  const [isLeaveFormVisible, setIsLeaveFormVisible] = useState(false);
+  const [leaveFromDate, setLeaveFromDate] = useState("");
+  const [leaveToDate, setLeaveToDate] = useState("");
+  const [leaveReason, setLeaveReason] = useState("");
+  const [isSubmittingLeave, setIsSubmittingLeave] = useState(false);
+
   useEffect(() => {
     getSupportRequests().then(setRequests);
+    getLeaveRequests().then(setLeaveRequests);
   }, []);
 
   async function handleSubmitRequest() {
@@ -67,7 +83,35 @@ export default function Support() {
     }
   }
 
-  if (!requests) {
+  async function handleSubmitLeave() {
+    if (!leaveFromDate.trim() || !leaveToDate.trim() || !leaveReason.trim()) {
+      Alert.alert("Missing details", "Please fill in the dates and a reason for leave.");
+      return;
+    }
+
+    setIsSubmittingLeave(true);
+    try {
+      // Asli backend ready hone par yeh seedha admin ke Scheduling tab par
+      // "Pending" dikhega, jahan se woh approve/reject karega.
+      const newLeave = await createLeaveRequest(
+        leaveFromDate.trim(),
+        leaveToDate.trim(),
+        leaveReason.trim(),
+      );
+      setLeaveRequests((prev) => [newLeave, ...(prev ?? [])]);
+      setIsLeaveFormVisible(false);
+      setLeaveFromDate("");
+      setLeaveToDate("");
+      setLeaveReason("");
+      Alert.alert("Leave Requested", "Your leave request has been sent to your admin for approval.");
+    } catch (error) {
+      Alert.alert("Something went wrong", "Please try again in a moment.");
+    } finally {
+      setIsSubmittingLeave(false);
+    }
+  }
+
+  if (!requests || !leaveRequests) {
     return <SupportSkeleton />;
   }
 
@@ -126,6 +170,58 @@ export default function Support() {
             </View>
           ))}
         </View>
+
+        {/* Apply for leave card */}
+        <View className="bg-blue-50 rounded-2xl p-5 mt-6">
+          <View className="w-11 h-11 rounded-full bg-blue-100 items-center justify-center mb-3">
+            <Ionicons name="calendar-outline" size={22} color="#2563eb" />
+          </View>
+          <Text className="text-slate-900 font-bold text-lg">Need Time Off?</Text>
+          <Text className="text-slate-500 text-sm mt-1 mb-4">
+            Apply for leave - your admin will review and approve it.
+          </Text>
+          <Pressable
+            className="bg-blue-700 rounded-xl py-3 px-5 self-start flex-row items-center gap-2"
+            onPress={() => setIsLeaveFormVisible(true)}
+          >
+            <Text className="text-white font-semibold">Apply for Leave</Text>
+            <Ionicons name="chevron-forward" size={16} color="white" />
+          </Pressable>
+        </View>
+
+        {/* My leave requests */}
+        {leaveRequests.length > 0 && (
+          <>
+            <Text className="text-slate-900 text-lg font-bold mt-6 mb-3">My Leave Requests</Text>
+            <View className="gap-3">
+              {leaveRequests.map((leave) => (
+                <View key={leave.id} className="flex-row items-center bg-white rounded-2xl p-4 shadow-sm">
+                  <View className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center mr-3">
+                    <Ionicons name="calendar-outline" size={18} color="#334155" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 font-semibold">
+                      {leave.fromDate}
+                      {leave.fromDate !== leave.toDate ? ` - ${leave.toDate}` : ""}
+                    </Text>
+                    <Text className="text-slate-400 text-xs mt-0.5">{leave.reason}</Text>
+                  </View>
+                  <View
+                    className="px-2.5 py-1 rounded-full"
+                    style={{ backgroundColor: `${LEAVE_STATUS_COLORS[leave.status] ?? "#64748b"}1A` }}
+                  >
+                    <Text
+                      className="text-xs font-semibold"
+                      style={{ color: LEAVE_STATUS_COLORS[leave.status] ?? "#64748b" }}
+                    >
+                      {leave.status}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
 
         {/* Resources */}
         <Text className="text-slate-900 text-lg font-bold mt-6 mb-3">Wellness Resources</Text>
@@ -263,6 +359,68 @@ export default function Support() {
             >
               <Text className="text-white font-semibold">
                 {isSubmittingRequest ? "Submitting..." : "Submit Request"}
+              </Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Apply for Leave form modal */}
+      <Modal
+        visible={isLeaveFormVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsLeaveFormVisible(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/50 justify-end"
+          onPress={() => setIsLeaveFormVisible(false)}
+        >
+          <Pressable className="bg-white rounded-t-3xl p-6" onPress={() => {}}>
+            <Text className="text-slate-900 text-lg font-bold mb-1">Apply for Leave</Text>
+            <Text className="text-slate-400 text-sm mb-4">
+              This goes directly to your admin for approval.
+            </Text>
+
+            <View className="flex-row gap-3 mb-4">
+              <View className="flex-1">
+                <Text className="text-slate-600 text-sm mb-2">From</Text>
+                <TextInput
+                  className="border border-slate-300 rounded-xl p-3 text-slate-900"
+                  placeholder="e.g. 12 Sep 2024"
+                  value={leaveFromDate}
+                  onChangeText={setLeaveFromDate}
+                />
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-600 text-sm mb-2">To</Text>
+                <TextInput
+                  className="border border-slate-300 rounded-xl p-3 text-slate-900"
+                  placeholder="e.g. 14 Sep 2024"
+                  value={leaveToDate}
+                  onChangeText={setLeaveToDate}
+                />
+              </View>
+            </View>
+
+            <Text className="text-slate-600 text-sm mb-2">Reason</Text>
+            <TextInput
+              className="border border-slate-300 rounded-xl p-3 text-slate-900 mb-5"
+              placeholder="e.g. Family function"
+              multiline
+              numberOfLines={3}
+              value={leaveReason}
+              onChangeText={setLeaveReason}
+              style={{ minHeight: 70, textAlignVertical: "top" }}
+            />
+
+            <Pressable
+              className="bg-blue-700 rounded-xl py-4 items-center"
+              onPress={handleSubmitLeave}
+              disabled={isSubmittingLeave}
+            >
+              <Text className="text-white font-semibold">
+                {isSubmittingLeave ? "Submitting..." : "Submit Leave Request"}
               </Text>
             </Pressable>
           </Pressable>

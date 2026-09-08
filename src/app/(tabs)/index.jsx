@@ -30,7 +30,6 @@ export default function Home() {
   const router = useRouter();
   const [data, setData] = useState(null);
   const [checkedInToday, setCheckedInToday] = useState(true);
-  const [isQuoteLiked, setIsQuoteLiked] = useState(false);
 
   const [isCheckInVisible, setIsCheckInVisible] = useState(false);
   const [mood, setMood] = useState("");
@@ -74,7 +73,7 @@ export default function Home() {
     return <HomeSkeleton />;
   }
 
-  const { personnel, wellnessStatus, atAGlance } = data;
+  const { personnel, wellnessStatus, atAGlance, assignedDuty } = data;
 
   return (
     <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
@@ -182,24 +181,42 @@ export default function Home() {
           />
         </View>
 
-        {/* Motivational quote card */}
+        {/* Assigned duty card - admin ne web dashboard se allot kiya hua */}
         <View className="flex-row items-center bg-white rounded-2xl p-4 mt-6 shadow-sm">
-          <View className="w-11 h-11 rounded-full bg-amber-50 items-center justify-center">
-            <Ionicons name="flag-outline" size={20} color="#d97706" />
+          <View
+            className={`w-11 h-11 rounded-full items-center justify-center ${
+              assignedDuty ? "bg-blue-50" : "bg-slate-100"
+            }`}
+          >
+            <Ionicons
+              name="briefcase-outline"
+              size={20}
+              color={assignedDuty ? "#2563eb" : "#94a3b8"}
+            />
           </View>
           <View className="flex-1 px-3">
-            <Text className="text-slate-700 text-sm italic">
-              "A strong force begins with strong individuals."
-            </Text>
-            <Text className="text-slate-400 text-xs mt-1">Take care. We've got your back.</Text>
+            {assignedDuty ? (
+              <>
+                <Text className="text-slate-900 text-sm font-semibold">
+                  Duty Assigned - {assignedDuty.date}
+                </Text>
+                <Text className="text-slate-500 text-xs mt-1">{assignedDuty.remark}</Text>
+              </>
+            ) : (
+              <>
+                <Text className="text-slate-700 text-sm font-medium">No duty assigned yet</Text>
+                <Text className="text-slate-400 text-xs mt-1">
+                  Your admin hasn't allotted your next duty.
+                </Text>
+              </>
+            )}
           </View>
-          <Pressable onPress={() => setIsQuoteLiked((liked) => !liked)}>
-            <Ionicons
-              name={isQuoteLiked ? "heart" : "heart-outline"}
-              size={20}
-              color={isQuoteLiked ? "#dc2626" : "#94a3b8"}
-            />
-          </Pressable>
+          {assignedDuty && (
+            <View className="items-end">
+              <Text className="text-blue-700 font-bold text-base">{assignedDuty.hours} hrs</Text>
+              <Text className="text-slate-400 text-[10px]">Working Hours</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 

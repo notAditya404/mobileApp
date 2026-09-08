@@ -18,6 +18,13 @@ const MOCK_HOME_DASHBOARD = {
     avgRestGap: { value: "8.1 hrs", note: "Good" },
     nightDuties: { value: "2", note: "Manageable" },
   },
+  // Admin ne web dashboard ke Scheduling tab se allot kiya hua sabse
+  // recent duty - kuch assign nahi hua to yeh null hota hai.
+  assignedDuty: {
+    date: "09 Sept 2024",
+    hours: 10,
+    remark: "Perimeter patrol - Gate 3",
+  },
 };
 
 // Backend endpoint (jab ready ho): GET /personnel/me/home-dashboard
