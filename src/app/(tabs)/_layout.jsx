@@ -1,25 +1,63 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
+// App ka primary color - active tab (icon + label) isi color mein dikhega
+const ACTIVE_COLOR = "#2563eb";
+const INACTIVE_COLOR = "#94a3b8";
+
 export default function TabLayout() {
   return (
-    <Tabs>
+    <Tabs
+      screenOptions={{
+        // Har screen apna khud ka header banayegi (design mein custom
+        // header dikhaye gaye hain), isliye navigator ka default header hide.
+        headerShown: false,
+        tabBarActiveTintColor: ACTIVE_COLOR,
+        tabBarInactiveTintColor: INACTIVE_COLOR,
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="home" size={24} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size} color={color} />
           ),
         }}
       />
-
       <Tabs.Screen
-        name="settings"
+        name="wellness"
         options={{
-          title: "Settings",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="settings" size={24} color={color} />
+          title: "Wellness",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="heart" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="ai-insights"
+        options={{
+          title: "AI Insights",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="sparkles" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="support"
+        options={{
+          title: "Support",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="headset" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person" size={size} color={color} />
           ),
         }}
       />
