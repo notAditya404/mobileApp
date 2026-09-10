@@ -34,13 +34,16 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/* AI Insights abhi kisi bhi platform pe use nahi ho raha - tab bar
+          se hata diya hai. href: null Expo Router mein tab ko bar se
+          exclude karta hai (sirf <Tabs.Screen> hata dene se tab abhi bhi
+          default title ke sath dikhta rehta, kyunki file-based routing
+          ke through ai-insights.jsx route apne aap discover ho jaata hai).
+          Wapas chalu karna ho to yeh options wala block hata dena. */}
       <Tabs.Screen
         name="ai-insights"
         options={{
-          title: "AI Insights",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="sparkles" size={size} color={color} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen
