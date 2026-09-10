@@ -36,6 +36,30 @@ const REQUEST_TYPES = [
   { key: "general", label: "General" },
 ];
 
+// Backend sirf isi exact format ko reliably parse karta hai ("12 Sep 2026").
+// Kuch aur type kiya (jaise "12/09/2026") to backend chup-chaap galat date
+// parse kar sakta hai (MM/DD ko day/month samajh ke) - isliye submit se
+// pehle hi yahan check kar lete hain, taaki galat date kabhi save hi na ho.
+const LEAVE_DATE_REGEX = /^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/;
+const VALID_MONTH_PREFIXES = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function isValidLeaveDate(input) {
+  const match = input.trim().match(LEAVE_DATE_REGEX);
+  if (!match) return false;
+  const [, day, month] = match;
+  const dayNum = Number(day);
+  return dayNum >= 1 && dayNum <= 31 && VALID_MONTH_PREFIXES.includes(month.slice(0, 3).toLowerCase());
+}
+
+// Placeholder ke liye ek real, aage ki date dikhate hain (hardcoded saal
+// nahi) - taaki example dekh ke koi purana saal type na kar de.
+function exampleLeaveDate(daysFromNow) {
+  const date = new Date();
+  date.setDate(date.getDate() + daysFromNow);
+  return `${date.getDate()} ${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
+}
+
 const SUPPORT_TYPE_ICONS = {
   welfare: "person-outline",
   medical: "medkit-outline",
@@ -111,6 +135,13 @@ export default function Support() {
   async function handleSubmitLeave() {
     if (!leaveFromDate.trim() || !leaveToDate.trim() || !leaveReason.trim()) {
       Alert.alert("Missing details", "Please fill in the dates and a reason for leave.");
+      return;
+    }
+    if (!isValidLeaveDate(leaveFromDate) || !isValidLeaveDate(leaveToDate)) {
+      Alert.alert(
+        "Check the date format",
+        `Please enter dates exactly like "${exampleLeaveDate(7)}" (date, month, year).`,
+      );
       return;
     }
 
@@ -424,7 +455,7 @@ export default function Support() {
                 <Text className="text-slate-600 text-sm mb-2">From</Text>
                 <TextInput
                   className="border border-slate-300 rounded-xl p-3 text-slate-900"
-                  placeholder="e.g. 12 Sep 2024"
+                  placeholder={`e.g. ${exampleLeaveDate(7)}`}
                   value={leaveFromDate}
                   onChangeText={setLeaveFromDate}
                 />
@@ -433,7 +464,7 @@ export default function Support() {
                 <Text className="text-slate-600 text-sm mb-2">To</Text>
                 <TextInput
                   className="border border-slate-300 rounded-xl p-3 text-slate-900"
-                  placeholder="e.g. 14 Sep 2024"
+                  placeholder={`e.g. ${exampleLeaveDate(9)}`}
                   value={leaveToDate}
                   onChangeText={setLeaveToDate}
                 />
