@@ -8,6 +8,7 @@ import {
   Alert,
   Linking,
   Modal,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -43,6 +44,7 @@ const SUPPORT_TYPE_ICONS = {
 export default function Support() {
   const [requests, setRequests] = useState(null);
   const [loadError, setLoadError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Resource card tap karne par isme woh resource set hoti hai (detail modal)
   const [selectedResource, setSelectedResource] = useState(null);
@@ -64,7 +66,7 @@ export default function Support() {
 
   function loadRequests() {
     setLoadError(false);
-    Promise.all([getSupportRequests(), getLeaveRequests()])
+    return Promise.all([getSupportRequests(), getLeaveRequests()])
       .then(([supportData, leaveData]) => {
         setRequests(supportData);
         setLeaveRequests(leaveData);
@@ -75,6 +77,11 @@ export default function Support() {
   useEffect(() => {
     loadRequests();
   }, []);
+
+  function onRefresh() {
+    setRefreshing(true);
+    loadRequests().finally(() => setRefreshing(false));
+  }
 
   async function handleSubmitRequest() {
     if (!requestDescription.trim()) {
@@ -142,7 +149,11 @@ export default function Support() {
 
   return (
     <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
-      <ScrollView className="flex-1 px-5" contentContainerClassName="pb-8">
+      <ScrollView
+        className="flex-1 px-5"
+        contentContainerClassName="pb-8"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />}
+      >
         {/* Header */}
         <View className="flex-row items-start justify-between mt-2">
           <View className="flex-1 pr-3">

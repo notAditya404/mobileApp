@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getAiInsights } from "@/api/aiInsights";
@@ -26,10 +26,11 @@ const DEFAULT_IMPACT_COLOR = "#64748b";
 export default function AiInsights() {
   const [data, setData] = useState(null);
   const [loadError, setLoadError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   function loadInsights() {
     setLoadError(false);
-    getAiInsights()
+    return getAiInsights()
       .then(setData)
       .catch(() => setLoadError(true));
   }
@@ -37,6 +38,11 @@ export default function AiInsights() {
   useEffect(() => {
     loadInsights();
   }, []);
+
+  function onRefresh() {
+    setRefreshing(true);
+    loadInsights().finally(() => setRefreshing(false));
+  }
 
   if (loadError) {
     return (
@@ -54,7 +60,11 @@ export default function AiInsights() {
 
   return (
     <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
-      <ScrollView className="flex-1 px-5" contentContainerClassName="pb-8">
+      <ScrollView
+        className="flex-1 px-5"
+        contentContainerClassName="pb-8"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />}
+      >
         {/* Header */}
         <View className="flex-row items-start justify-between mt-2">
           <View className="flex-row items-center gap-2 flex-1 pr-3">

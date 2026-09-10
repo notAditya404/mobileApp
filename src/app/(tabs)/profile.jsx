@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -13,10 +13,11 @@ export default function Profile() {
   const { logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loadError, setLoadError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   function loadProfile() {
     setLoadError(false);
-    getProfile()
+    return getProfile()
       .then(setProfile)
       .catch(() => setLoadError(true));
   }
@@ -24,6 +25,11 @@ export default function Profile() {
   useEffect(() => {
     loadProfile();
   }, []);
+
+  function onRefresh() {
+    setRefreshing(true);
+    loadProfile().finally(() => setRefreshing(false));
+  }
 
   function handleLogout() {
     Alert.alert("Logout", "Are you sure you want to sign out?", [
@@ -61,7 +67,11 @@ export default function Profile() {
 
   return (
     <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
-      <ScrollView className="flex-1 px-5" contentContainerClassName="pb-8">
+      <ScrollView
+        className="flex-1 px-5"
+        contentContainerClassName="pb-8"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />}
+      >
         {/* Header */}
         <Text className="text-2xl font-bold text-slate-900 mt-2">Profile</Text>
         <Text className="text-slate-400 mt-1 mb-5">

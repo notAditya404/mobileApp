@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getWellnessOverview } from "@/api/wellness";
@@ -34,10 +34,11 @@ const DEFAULT_FACTOR_STYLE = { icon: "ellipse-outline", color: "#64748b" };
 export default function Wellness() {
   const [data, setData] = useState(null);
   const [loadError, setLoadError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   function loadWellness() {
     setLoadError(false);
-    getWellnessOverview()
+    return getWellnessOverview()
       .then(setData)
       .catch(() => setLoadError(true));
   }
@@ -45,6 +46,11 @@ export default function Wellness() {
   useEffect(() => {
     loadWellness();
   }, []);
+
+  function onRefresh() {
+    setRefreshing(true);
+    loadWellness().finally(() => setRefreshing(false));
+  }
 
   if (loadError) {
     return (
@@ -63,7 +69,11 @@ export default function Wellness() {
 
   return (
     <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
-      <ScrollView className="flex-1 px-5" contentContainerClassName="pb-8">
+      <ScrollView
+        className="flex-1 px-5"
+        contentContainerClassName="pb-8"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />}
+      >
         {/* Header */}
         <View className="flex-row items-start justify-between mt-2">
           <View className="flex-1 pr-3">

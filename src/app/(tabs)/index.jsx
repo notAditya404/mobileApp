@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, Modal, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, Modal, Alert, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -31,6 +31,7 @@ export default function Home() {
   const router = useRouter();
   const [data, setData] = useState(null);
   const [loadError, setLoadError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [checkedInToday, setCheckedInToday] = useState(true);
 
   const [isCheckInVisible, setIsCheckInVisible] = useState(false);
@@ -42,16 +43,14 @@ export default function Home() {
   // Screen khulte hi dashboard data aur "aaj check-in hua ya nahi" dono load karo
   function loadDashboard() {
     setLoadError(false);
-    getHomeDashboard()
-      .then(setData)
-      .catch(() => setLoadError(true));
+    return Promise.all([
+      getHomeDashboard().then(setData),
+      getTodayCheckInStatus().then((status) => setCheckedInToday(status.submittedToday)),
+    ]).catch(() => setLoadError(true));
   }
 
   useEffect(() => {
     loadDashboard();
-    getTodayCheckInStatus()
-      .then((status) => setCheckedInToday(status.submittedToday))
-      .catch(() => {});
 
     // Notification settings ke hisaab se daily reminder ensure karo
     getNotificationSettings()
@@ -60,6 +59,12 @@ export default function Home() {
       })
       .catch(() => {});
   }, []);
+
+  // Pull-to-refresh - dashboard aur check-in status dono taaza kar deta hai
+  function onRefresh() {
+    setRefreshing(true);
+    loadDashboard().finally(() => setRefreshing(false));
+  }
 
   async function handleSubmitCheckIn() {
     if (!mood || !sleepHours || !stressLevel) {
@@ -98,7 +103,11 @@ export default function Home() {
 
   return (
     <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
-      <ScrollView className="flex-1 px-5" contentContainerClassName="pb-8">
+      <ScrollView
+        className="flex-1 px-5"
+        contentContainerClassName="pb-8"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />}
+      >
         {/* Header: greeting + notification bell */}
         <View className="flex-row items-start justify-between mt-2">
           <View>
