@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getWellnessOverview } from "@/api/wellness";
 import { Skeleton } from "@/components/Skeleton";
 import { ErrorState } from "@/components/ErrorState";
+import { RiskBadge } from "@/components/RiskBadge";
 
 // Pillar ka icon/color purely presentational hai - backend sirf "key"
 // bhejta hai, styling yahan se aati hai (isliye API response halka
@@ -64,7 +65,7 @@ export default function Wellness() {
     return <WellnessSkeleton />;
   }
 
-  const { score, status, description, lastUpdated, pillars, influencingFactors, trend } = data;
+  const { score, status, riskLevel, description, lastUpdated, pillars, influencingFactors, trend } = data;
   const maxTrendPoint = Math.max(...trend.points);
 
   return (
@@ -99,6 +100,7 @@ export default function Wellness() {
             <Text className="text-4xl font-extrabold text-slate-900">{score}</Text>
             <Text className="text-slate-400 mb-1">/100 Wellness Score</Text>
           </View>
+          <RiskBadge level={riskLevel} />
           <View className="h-2 bg-slate-100 rounded-full mt-3 overflow-hidden">
             <View className="h-2 bg-violet-600 rounded-full" style={{ width: `${score}%` }} />
           </View>

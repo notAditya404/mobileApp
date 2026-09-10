@@ -5,6 +5,7 @@ import { USE_MOCK_DATA } from "./config";
 const MOCK_WELLNESS = {
   score: 78,
   status: "Balanced",
+  riskLevel: "Low",
   description:
     "Your recent duty, rest and workload patterns are within a healthy range.",
   lastUpdated: "Today, 7:30 AM",

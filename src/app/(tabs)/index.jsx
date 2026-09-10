@@ -9,6 +9,7 @@ import { getNotificationSettings } from "@/api/settings";
 import { syncDailyCheckInReminder } from "@/api/notifications";
 import { Skeleton } from "@/components/Skeleton";
 import { ErrorState } from "@/components/ErrorState";
+import { RiskBadge } from "@/components/RiskBadge";
 
 // Device ke current time ke hisaab se greeting - subah/dopahar/shaam
 function getGreeting() {
@@ -139,10 +140,15 @@ export default function Home() {
               <Text className="text-slate-500 text-sm">
                 Your Wellness Status
               </Text>
-              <Text className="text-green-600 text-2xl font-bold mt-1">
-                {wellnessStatus.label}
-              </Text>
-              <Text className="text-slate-500 text-sm mt-1">
+              <View className="flex-row items-baseline gap-2 mt-1">
+                <Text className="text-slate-900 text-2xl font-extrabold">{wellnessStatus.score}</Text>
+                <Text className="text-slate-400 text-xs">/100</Text>
+                <Text className="text-green-600 text-base font-bold">
+                  {wellnessStatus.label}
+                </Text>
+              </View>
+              <RiskBadge level={wellnessStatus.riskLevel} />
+              <Text className="text-slate-500 text-sm mt-2">
                 {wellnessStatus.description}
               </Text>
             </View>

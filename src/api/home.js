@@ -9,7 +9,9 @@ const MOCK_HOME_DASHBOARD = {
     fullName: "Arjun Kumar",
   },
   wellnessStatus: {
+    score: 78,
     label: "Balanced",
+    riskLevel: "Low",
     description: "You're maintaining a good balance of duty and recovery.",
     trend: "Improving",
   },
