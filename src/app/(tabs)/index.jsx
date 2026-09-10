@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, Modal, Alert, RefreshControl } from "react-native";
+import { View, Text, ScrollView, Pressable, Modal, Alert, TextInput, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -18,15 +18,6 @@ function getGreeting() {
   return "Good Evening,";
 }
 
-const MOOD_OPTIONS = [
-  { key: "low", emoji: "😞", label: "Low" },
-  { key: "okay", emoji: "😐", label: "Okay" },
-  { key: "good", emoji: "🙂", label: "Good" },
-  { key: "great", emoji: "😄", label: "Great" },
-];
-const SLEEP_OPTIONS = ["< 5 hrs", "5-6 hrs", "6-7 hrs", "7-8 hrs", "8+ hrs"];
-const STRESS_OPTIONS = ["Low", "Moderate", "High", "Very High"];
-
 export default function Home() {
   const router = useRouter();
   const [data, setData] = useState(null);
@@ -35,9 +26,8 @@ export default function Home() {
   const [checkedInToday, setCheckedInToday] = useState(true);
 
   const [isCheckInVisible, setIsCheckInVisible] = useState(false);
-  const [mood, setMood] = useState("");
   const [sleepHours, setSleepHours] = useState("");
-  const [stressLevel, setStressLevel] = useState("");
+  const [mealsPerDay, setMealsPerDay] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Screen khulte hi dashboard data aur "aaj check-in hua ya nahi" dono load karo
@@ -67,19 +57,20 @@ export default function Home() {
   }
 
   async function handleSubmitCheckIn() {
-    if (!mood || !sleepHours || !stressLevel) {
-      Alert.alert("Missing details", "Please answer all 3 quick questions.");
+    const sleepHoursValid = sleepHours.trim() !== "" && !Number.isNaN(Number(sleepHours));
+    const mealsPerDayValid = mealsPerDay.trim() !== "" && !Number.isNaN(Number(mealsPerDay));
+    if (!sleepHoursValid || !mealsPerDayValid) {
+      Alert.alert("Missing details", "Please answer both quick questions.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await submitCheckIn({ mood, sleepHours, stressLevel });
+      await submitCheckIn({ sleepHours: Number(sleepHours), mealsPerDay: Number(mealsPerDay) });
       setCheckedInToday(true);
       setIsCheckInVisible(false);
-      setMood("");
       setSleepHours("");
-      setStressLevel("");
+      setMealsPerDay("");
     } catch (error) {
       Alert.alert("Something went wrong", "Please try again in a moment.");
     } finally {
@@ -135,7 +126,7 @@ export default function Home() {
             </View>
             <View className="flex-1">
               <Text className="text-white font-semibold">Today's wellness check-in is pending</Text>
-              <Text className="text-blue-100 text-xs mt-0.5">Just 30 seconds - 3 quick questions</Text>
+              <Text className="text-blue-100 text-xs mt-0.5">Just 15 seconds - 2 quick questions</Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color="white" />
           </Pressable>
@@ -267,29 +258,23 @@ export default function Home() {
               This is only visible to you, and helps us understand your wellness.
             </Text>
 
-            <Text className="text-slate-700 font-medium mb-2">How's your mood today?</Text>
-            <View className="flex-row gap-2 mb-5">
-              {MOOD_OPTIONS.map((option) => {
-                const selected = mood === option.key;
-                return (
-                  <Pressable
-                    key={option.key}
-                    onPress={() => setMood(option.key)}
-                    className={`flex-1 items-center py-3 rounded-xl border ${
-                      selected ? "bg-blue-50 border-blue-600" : "bg-white border-slate-200"
-                    }`}
-                  >
-                    <Text className="text-2xl">{option.emoji}</Text>
-                    <Text className={`text-xs mt-1 ${selected ? "text-blue-700 font-semibold" : "text-slate-500"}`}>
-                      {option.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <Text className="text-slate-700 font-medium mb-2">How many hours did you sleep last night?</Text>
+            <TextInput
+              className="border border-slate-300 rounded-xl px-3 py-3 text-slate-900 mb-5"
+              placeholder="e.g. 7"
+              keyboardType="numeric"
+              value={sleepHours}
+              onChangeText={setSleepHours}
+            />
 
-            <ChipGroup question="How was your sleep last night?" options={SLEEP_OPTIONS} value={sleepHours} onChange={setSleepHours} />
-            <ChipGroup question="What's your stress level today?" options={STRESS_OPTIONS} value={stressLevel} onChange={setStressLevel} />
+            <Text className="text-slate-700 font-medium mb-2">How many meals have you eaten today?</Text>
+            <TextInput
+              className="border border-slate-300 rounded-xl px-3 py-3 text-slate-900 mb-5"
+              placeholder="e.g. 3"
+              keyboardType="numeric"
+              value={mealsPerDay}
+              onChangeText={setMealsPerDay}
+            />
 
             <Pressable
               className="bg-blue-700 rounded-xl py-4 items-center mt-2"
@@ -342,33 +327,6 @@ function QuickAccessRow({ icon, title, subtitle, onPress }) {
       </View>
       <Ionicons name="chevron-forward" size={18} color="#94a3b8" />
     </Pressable>
-  );
-}
-
-// Check-in modal ke sawaal (sleep/stress) isi se bante hain - single-select chips
-function ChipGroup({ question, options, value, onChange }) {
-  return (
-    <View className="mb-5">
-      <Text className="text-slate-700 font-medium mb-2">{question}</Text>
-      <View className="flex-row flex-wrap gap-2">
-        {options.map((option) => {
-          const selected = value === option;
-          return (
-            <Pressable
-              key={option}
-              onPress={() => onChange(option)}
-              className={`px-3 py-2 rounded-full border ${
-                selected ? "bg-blue-700 border-blue-700" : "bg-white border-slate-300"
-              }`}
-            >
-              <Text className={selected ? "text-white text-sm" : "text-slate-600 text-sm"}>
-                {option}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
   );
 }
 

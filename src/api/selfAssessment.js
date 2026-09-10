@@ -21,10 +21,11 @@ export async function getTodayCheckInStatus() {
   return apiRequest("/personnel/me/self-assessments/today");
 }
 
-// Backend endpoint (jab ready ho): POST /personnel/me/self-assessments
-// Body: { mood, sleepHours, stressLevel }
-// Yeh har check-in ek naya self_assessments row banayega (DB design ke
-// mutabik), jo AI model ke liye baseline/trend data ban jayega.
+// Backend endpoint: POST /personnel/me/self-assessments
+// Body: { sleepHours: number, mealsPerDay: number }
+// Yeh har check-in ek naya self_assessments row banayega, jo ML model ke
+// liye seedha input banta hai (sleep_hours ka 15-din average, meals_per_day
+// ka sabse recent value - dekho backend ka mlRecordBuilder.js).
 export async function submitCheckIn(checkInData) {
   if (USE_MOCK_DATA) {
     await SecureStore.setItemAsync(LAST_CHECKIN_DATE_KEY, todayString());

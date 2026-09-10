@@ -24,12 +24,13 @@ export async function login(userId, password) {
   });
 }
 
-// Backend endpoint (jab ready ho): POST /auth/signup
+// Backend endpoint: POST /auth/signup
 // Body: { fullName, email, rank, dob, gender, bloodGroup, sleepHours,
-//         dietQuality, workPressure, lastLeave, password }
-// (sleepHours/dietQuality/workPressure/lastLeave signup ke waqt li gayi
+//         mealsPerDay, workPressure, lastLeave, password }
+// (sleepHours/mealsPerDay/workPressure/lastLeave signup ke waqt li gayi
 // initial wellness survey se aate hain - backend inhe personnel ke pehle
-// self_assessment record ki tarah save kar sakta hai)
+// self_assessment record ki tarah save karta hai. sleepHours aur
+// mealsPerDay raw numbers hain - ML model ko seedha yehi chahiye.)
 // Response: { token: string, personnel: {...} }
 export async function signup(signupData) {
   if (USE_MOCK_DATA) {

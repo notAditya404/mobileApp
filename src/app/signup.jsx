@@ -41,19 +41,11 @@ const GENDER_OPTIONS = ["Male", "Female", "Other"];
 
 const BLOOD_GROUP_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
-// Survey ke saare sawaal aur unke options - yeh initial baseline data
-// self_assessments table mein jayega taaki signup ke sath hi kuch data ho
+// Survey ke chip-based sawaal - yeh initial baseline data self_assessments
+// table mein jayega taaki signup ke sath hi kuch data ho. Sleep hours aur
+// meals per day alag numeric fields hain (neeche dekho) - ML model ko
+// seedha raw number chahiye, bucketed option nahi.
 const SURVEY_QUESTIONS = [
-  {
-    key: "sleepHours",
-    question: "How many hours do you sleep on average?",
-    options: ["< 5 hrs", "5-6 hrs", "6-7 hrs", "7-8 hrs", "8+ hrs"],
-  },
-  {
-    key: "dietQuality",
-    question: "How would you rate your diet quality?",
-    options: ["Poor", "Average", "Good", "Excellent"],
-  },
   {
     key: "workPressure",
     question: "How would you describe your current work pressure?",
@@ -82,6 +74,8 @@ export default function Signup() {
   const [bloodGroup, setBloodGroup] = useState("");
 
   // Step 2 - Initial Wellness Survey
+  const [sleepHours, setSleepHours] = useState("");
+  const [mealsPerDay, setMealsPerDay] = useState("");
   const [surveyAnswers, setSurveyAnswers] = useState({});
 
   // Step 3 - Password
@@ -106,8 +100,10 @@ export default function Signup() {
   }
 
   function handleSurveyNext() {
+    const sleepHoursValid = sleepHours.trim() !== "" && !Number.isNaN(Number(sleepHours));
+    const mealsPerDayValid = mealsPerDay.trim() !== "" && !Number.isNaN(Number(mealsPerDay));
     const unanswered = SURVEY_QUESTIONS.some((q) => !surveyAnswers[q.key]);
-    if (unanswered) {
+    if (!sleepHoursValid || !mealsPerDayValid || unanswered) {
       Alert.alert("Incomplete survey", "Please answer all the questions.");
       return;
     }
@@ -140,6 +136,8 @@ export default function Signup() {
         dob,
         gender,
         bloodGroup,
+        sleepHours: Number(sleepHours),
+        mealsPerDay: Number(mealsPerDay),
         ...surveyAnswers,
         password,
       });
@@ -231,6 +229,23 @@ export default function Signup() {
               Just a few quick questions, so we can build a baseline wellness
               profile for you.
             </Text>
+
+            <Field
+              label="Hours slept last night (average)"
+              icon="moon-outline"
+              value={sleepHours}
+              onChangeText={setSleepHours}
+              placeholder="e.g. 7"
+              keyboardType="numeric"
+            />
+            <Field
+              label="Average meals eaten per day"
+              icon="restaurant-outline"
+              value={mealsPerDay}
+              onChangeText={setMealsPerDay}
+              placeholder="e.g. 3"
+              keyboardType="numeric"
+            />
 
             {SURVEY_QUESTIONS.map((q) => (
               <ChipGroup
