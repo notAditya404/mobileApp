@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getWellnessOverview } from "@/api/wellness";
 import { Skeleton } from "@/components/Skeleton";
+import { ErrorState } from "@/components/ErrorState";
 
 // Pillar ka icon/color purely presentational hai - backend sirf "key"
 // bhejta hai, styling yahan se aati hai (isliye API response halka
@@ -32,10 +33,26 @@ const DEFAULT_FACTOR_STYLE = { icon: "ellipse-outline", color: "#64748b" };
 
 export default function Wellness() {
   const [data, setData] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+
+  function loadWellness() {
+    setLoadError(false);
+    getWellnessOverview()
+      .then(setData)
+      .catch(() => setLoadError(true));
+  }
 
   useEffect(() => {
-    getWellnessOverview().then(setData);
+    loadWellness();
   }, []);
+
+  if (loadError) {
+    return (
+      <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
+        <ErrorState onRetry={loadWellness} />
+      </SafeAreaView>
+    );
+  }
 
   if (!data) {
     return <WellnessSkeleton />;

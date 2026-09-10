@@ -6,14 +6,23 @@ import { useRouter } from "expo-router";
 import { getProfile } from "@/api/profile";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/Skeleton";
+import { ErrorState } from "@/components/ErrorState";
 
 export default function Profile() {
   const router = useRouter();
   const { logout } = useAuth();
   const [profile, setProfile] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+
+  function loadProfile() {
+    setLoadError(false);
+    getProfile()
+      .then(setProfile)
+      .catch(() => setLoadError(true));
+  }
 
   useEffect(() => {
-    getProfile().then(setProfile);
+    loadProfile();
   }, []);
 
   function handleLogout() {
@@ -27,6 +36,14 @@ export default function Profile() {
         onPress: logout,
       },
     ]);
+  }
+
+  if (loadError) {
+    return (
+      <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
+        <ErrorState onRetry={loadProfile} />
+      </SafeAreaView>
+    );
   }
 
   if (!profile) {

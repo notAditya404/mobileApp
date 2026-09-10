@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getSupportRequests, createSupportRequest, WELLNESS_RESOURCES } from "@/api/support";
 import { getLeaveRequests, createLeaveRequest } from "@/api/leave";
 import { Skeleton } from "@/components/Skeleton";
+import { ErrorState } from "@/components/ErrorState";
 
 const LEAVE_STATUS_COLORS = {
   Pending: "#d97706",
@@ -41,6 +42,7 @@ const SUPPORT_TYPE_ICONS = {
 
 export default function Support() {
   const [requests, setRequests] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
   // Resource card tap karne par isme woh resource set hoti hai (detail modal)
   const [selectedResource, setSelectedResource] = useState(null);
@@ -60,9 +62,18 @@ export default function Support() {
   const [leaveReason, setLeaveReason] = useState("");
   const [isSubmittingLeave, setIsSubmittingLeave] = useState(false);
 
+  function loadRequests() {
+    setLoadError(false);
+    Promise.all([getSupportRequests(), getLeaveRequests()])
+      .then(([supportData, leaveData]) => {
+        setRequests(supportData);
+        setLeaveRequests(leaveData);
+      })
+      .catch(() => setLoadError(true));
+  }
+
   useEffect(() => {
-    getSupportRequests().then(setRequests);
-    getLeaveRequests().then(setLeaveRequests);
+    loadRequests();
   }, []);
 
   async function handleSubmitRequest() {
@@ -115,6 +126,14 @@ export default function Support() {
     } finally {
       setIsSubmittingLeave(false);
     }
+  }
+
+  if (loadError) {
+    return (
+      <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
+        <ErrorState onRetry={loadRequests} />
+      </SafeAreaView>
+    );
   }
 
   if (!requests || !leaveRequests) {

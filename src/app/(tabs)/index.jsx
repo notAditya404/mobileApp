@@ -8,6 +8,7 @@ import { getTodayCheckInStatus, submitCheckIn } from "@/api/selfAssessment";
 import { getNotificationSettings } from "@/api/settings";
 import { syncDailyCheckInReminder } from "@/api/notifications";
 import { Skeleton } from "@/components/Skeleton";
+import { ErrorState } from "@/components/ErrorState";
 
 // Device ke current time ke hisaab se greeting - subah/dopahar/shaam
 function getGreeting() {
@@ -29,6 +30,7 @@ const STRESS_OPTIONS = ["Low", "Moderate", "High", "Very High"];
 export default function Home() {
   const router = useRouter();
   const [data, setData] = useState(null);
+  const [loadError, setLoadError] = useState(false);
   const [checkedInToday, setCheckedInToday] = useState(true);
 
   const [isCheckInVisible, setIsCheckInVisible] = useState(false);
@@ -38,14 +40,25 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Screen khulte hi dashboard data aur "aaj check-in hua ya nahi" dono load karo
+  function loadDashboard() {
+    setLoadError(false);
+    getHomeDashboard()
+      .then(setData)
+      .catch(() => setLoadError(true));
+  }
+
   useEffect(() => {
-    getHomeDashboard().then(setData);
-    getTodayCheckInStatus().then((status) => setCheckedInToday(status.submittedToday));
+    loadDashboard();
+    getTodayCheckInStatus()
+      .then((status) => setCheckedInToday(status.submittedToday))
+      .catch(() => {});
 
     // Notification settings ke hisaab se daily reminder ensure karo
-    getNotificationSettings().then((settings) => {
-      syncDailyCheckInReminder(settings.dailyCheckInReminder);
-    });
+    getNotificationSettings()
+      .then((settings) => {
+        syncDailyCheckInReminder(settings.dailyCheckInReminder);
+      })
+      .catch(() => {});
   }, []);
 
   async function handleSubmitCheckIn() {
@@ -67,6 +80,14 @@ export default function Home() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (loadError) {
+    return (
+      <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
+        <ErrorState onRetry={loadDashboard} />
+      </SafeAreaView>
+    );
   }
 
   if (!data) {

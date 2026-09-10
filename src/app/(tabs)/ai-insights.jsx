@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getAiInsights } from "@/api/aiInsights";
 import { Skeleton } from "@/components/Skeleton";
+import { ErrorState } from "@/components/ErrorState";
 
 // Icon purely presentational - frontend "key" se decide karta hai
 const CONTRIBUTING_FACTOR_ICONS = {
@@ -24,10 +25,26 @@ const DEFAULT_IMPACT_COLOR = "#64748b";
 
 export default function AiInsights() {
   const [data, setData] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+
+  function loadInsights() {
+    setLoadError(false);
+    getAiInsights()
+      .then(setData)
+      .catch(() => setLoadError(true));
+  }
 
   useEffect(() => {
-    getAiInsights().then(setData);
+    loadInsights();
   }, []);
+
+  if (loadError) {
+    return (
+      <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
+        <ErrorState onRetry={loadInsights} />
+      </SafeAreaView>
+    );
+  }
 
   if (!data) {
     return <AiInsightsSkeleton />;
