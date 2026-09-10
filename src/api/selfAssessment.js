@@ -4,8 +4,16 @@ import { USE_MOCK_DATA } from "./config";
 
 const LAST_CHECKIN_DATE_KEY = "lastCheckInDate";
 
+// Local date parts, not toISOString() (which converts to UTC) - between
+// 12:00am and ~5:30am IST, the UTC calendar date is still "yesterday",
+// so toISOString() would say a check-in from a few minutes ago wasn't
+// "today" at all.
 function todayString() {
-  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 // Aaj ka daily check-in bhara ja chuka hai ya nahi, yeh check karta hai.
