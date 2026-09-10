@@ -21,6 +21,7 @@ const LEAVE_STATUS_COLORS = {
   Pending: "#d97706",
   Approved: "#16a34a",
   Rejected: "#dc2626",
+  Expired: "#64748b",
 };
 
 const STATUS_COLORS = {
