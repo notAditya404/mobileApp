@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable, Switch, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, Pressable, Switch, ScrollView, ActivityIndicator, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { getNotificationSettings, updateNotificationSettings } from "@/api/settings";
 import { syncDailyCheckInReminder } from "@/api/notifications";
+import { ErrorState } from "@/components/ErrorState";
 
 const OPTIONS = [
   {
@@ -18,19 +19,36 @@ const OPTIONS = [
 export default function NotificationSettings() {
   const router = useRouter();
   const [settings, setSettings] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+
+  function load() {
+    setLoadError(false);
+    setSettings(null);
+    getNotificationSettings()
+      .then(setSettings)
+      .catch(() => setLoadError(true));
+  }
 
   useEffect(() => {
-    getNotificationSettings().then(setSettings);
+    load();
   }, []);
 
-  function toggle(key) {
+  async function toggle(key) {
+    const previous = settings;
     const updated = { ...settings, [key]: !settings[key] };
     setSettings(updated);
-    updateNotificationSettings(updated);
 
-    // Reminder ka actual local schedule bhi turant sync karo
-    if (key === "dailyCheckInReminder") {
-      syncDailyCheckInReminder(updated.dailyCheckInReminder);
+    try {
+      await updateNotificationSettings(updated);
+      // Reminder ka actual local schedule sirf server-save confirm hone
+      // ke baad sync karo, taaki failed save par local notification aur
+      // server setting out of sync na rahein.
+      if (key === "dailyCheckInReminder") {
+        syncDailyCheckInReminder(updated.dailyCheckInReminder);
+      }
+    } catch (error) {
+      setSettings(previous);
+      Alert.alert("Couldn't save", error.message || "Please try again.");
     }
   }
 
@@ -43,7 +61,9 @@ export default function NotificationSettings() {
         <Text className="text-2xl font-bold text-slate-900 mb-1">Notification Settings</Text>
         <Text className="text-slate-400 mb-6">Choose what you want to be notified about.</Text>
 
-        {!settings ? (
+        {loadError ? (
+          <ErrorState onRetry={load} />
+        ) : !settings ? (
           <ActivityIndicator size="large" color="#2563eb" />
         ) : (
           <View className="bg-slate-50 rounded-2xl">

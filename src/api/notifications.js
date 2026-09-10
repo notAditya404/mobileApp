@@ -43,9 +43,24 @@ export async function requestNotificationPermission() {
   }
 }
 
-// Har roz shaam 8 baje local reminder - isko backend ki zaroorat nahi,
-// phone khud hi schedule karke rakhta hai
-export async function scheduleDailyCheckInReminder() {
+// Agle 8pm occurrence ka Date - aaj ka check-in ho chuka ho ya aaj ka
+// 8pm nikal chuka ho, dono cases mein kal 8pm par chala jaata hai.
+function nextReminderDate(alreadyCheckedInToday) {
+  const next = new Date();
+  next.setHours(20, 0, 0, 0);
+  if (alreadyCheckedInToday || next <= new Date()) {
+    next.setDate(next.getDate() + 1);
+  }
+  return next;
+}
+
+// Ek hi baar ke liye 8pm reminder schedule karta hai (DAILY recurring
+// trigger nahi) - warna yeh check-in ho jaane ke baad bhi "still pending"
+// bolta rehta, kyunki recurring trigger ko kabhi pata hi nahi chalta ki
+// beech mein check-in ho chuka hai. Isliye Home mount aur check-in ke
+// baad, dono jagah se isko phir se schedule kiya jaata hai (agla din ke
+// liye), taaki yeh hamesha sahi din ke liye hi baje.
+export async function scheduleDailyCheckInReminder(alreadyCheckedInToday = false) {
   if (!Notifications) return;
 
   try {
@@ -57,9 +72,8 @@ export async function scheduleDailyCheckInReminder() {
         body: "Today's check-in is still pending - it only takes 30 seconds.",
       },
       trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DAILY,
-        hour: 20,
-        minute: 0,
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: nextReminderDate(alreadyCheckedInToday),
       },
     });
   } catch (error) {
@@ -74,8 +88,10 @@ export async function cancelDailyCheckInReminder() {
 
 // Toggle ke on/off state ke hisaab se reminder ko schedule/cancel karta
 // hai - Home (app start par) aur Notification Settings (manual toggle)
-// dono isi ek function ko call karte hain
-export async function syncDailyCheckInReminder(isEnabled) {
+// dono isi ek function ko call karte hain. `alreadyCheckedInToday` pass
+// karo taaki aaj check-in ho chuka ho to reminder seedha kal ke liye
+// schedule ho, aaj phir se "pending" bolkar user ko mislead na kare.
+export async function syncDailyCheckInReminder(isEnabled, alreadyCheckedInToday = false) {
   if (!isEnabled) {
     await cancelDailyCheckInReminder();
     return;
@@ -83,5 +99,5 @@ export async function syncDailyCheckInReminder(isEnabled) {
 
   const granted = await requestNotificationPermission();
   if (!granted) return;
-  await scheduleDailyCheckInReminder();
+  await scheduleDailyCheckInReminder(alreadyCheckedInToday);
 }

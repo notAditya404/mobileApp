@@ -25,6 +25,7 @@ export default function Home() {
   const [loadError, setLoadError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [checkedInToday, setCheckedInToday] = useState(true);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
 
   const [isCheckInVisible, setIsCheckInVisible] = useState(false);
   const [sleepHours, setSleepHours] = useState("");
@@ -36,19 +37,30 @@ export default function Home() {
     setLoadError(false);
     return Promise.all([
       getHomeDashboard().then(setData),
-      getTodayCheckInStatus().then((status) => setCheckedInToday(status.submittedToday)),
-    ]).catch(() => setLoadError(true));
+      getTodayCheckInStatus().then((status) => status.submittedToday),
+    ])
+      .then(([, submittedToday]) => {
+        setCheckedInToday(submittedToday);
+        return submittedToday;
+      })
+      .catch(() => {
+        setLoadError(true);
+        return null;
+      });
   }
 
   useEffect(() => {
-    loadDashboard();
-
-    // Notification settings ke hisaab se daily reminder ensure karo
-    getNotificationSettings()
-      .then((settings) => {
-        syncDailyCheckInReminder(settings.dailyCheckInReminder);
-      })
-      .catch(() => {});
+    // Reminder ko sirf tab schedule karo jab humein pata ho aaj check-in
+    // hua ya nahi - warna galat din ke liye ban sakta hai (default state).
+    loadDashboard().then((submittedToday) => {
+      if (submittedToday === null) return;
+      getNotificationSettings()
+        .then((settings) => {
+          setReminderEnabled(settings.dailyCheckInReminder);
+          syncDailyCheckInReminder(settings.dailyCheckInReminder, submittedToday);
+        })
+        .catch(() => {});
+    });
   }, []);
 
   // Pull-to-refresh - dashboard aur check-in status dono taaza kar deta hai
@@ -72,8 +84,11 @@ export default function Home() {
       setIsCheckInVisible(false);
       setSleepHours("");
       setMealsPerDay("");
+      // Aaj ka check-in ho gaya - reminder ko kal ke liye move kar do,
+      // warna aaj 8pm par bhi "still pending" bol dega.
+      syncDailyCheckInReminder(reminderEnabled, true);
     } catch (error) {
-      Alert.alert("Something went wrong", "Please try again in a moment.");
+      Alert.alert("Something went wrong", error.message || "Please try again in a moment.");
     } finally {
       setIsSubmitting(false);
     }

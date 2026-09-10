@@ -143,7 +143,7 @@ export default function Signup() {
       });
       await login(token);
     } catch (error) {
-      Alert.alert("Signup failed", "Something went wrong, please try again.");
+      Alert.alert("Signup failed", error.message || "Something went wrong, please try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -41,7 +41,7 @@ export default function ChangePassword() {
         { text: "OK", onPress: () => router.back() },
       ]);
     } catch (error) {
-      Alert.alert("Something went wrong", "Please check your current password and try again.");
+      Alert.alert("Something went wrong", error.message || "Please check your current password and try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -44,12 +44,27 @@ const LEAVE_DATE_REGEX = /^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/;
 const VALID_MONTH_PREFIXES = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-function isValidLeaveDate(input) {
+// Returns a UTC Date for a valid "DD Month YYYY" input, or null - checked
+// against the real days-per-month (not just 1-31) so e.g. "31 Feb 2026"
+// is rejected here instead of silently rolling over to March once it
+// reaches the backend's own Date.UTC() parsing.
+function parseLeaveDate(input) {
   const match = input.trim().match(LEAVE_DATE_REGEX);
-  if (!match) return false;
-  const [, day, month] = match;
+  if (!match) return null;
+  const [, day, month, year] = match;
+  const monthIndex = VALID_MONTH_PREFIXES.indexOf(month.slice(0, 3).toLowerCase());
   const dayNum = Number(day);
-  return dayNum >= 1 && dayNum <= 31 && VALID_MONTH_PREFIXES.includes(month.slice(0, 3).toLowerCase());
+  const yearNum = Number(year);
+  if (monthIndex === -1 || dayNum < 1 || dayNum > 31) return null;
+
+  const date = new Date(Date.UTC(yearNum, monthIndex, dayNum));
+  const isRealCalendarDate =
+    date.getUTCFullYear() === yearNum && date.getUTCMonth() === monthIndex && date.getUTCDate() === dayNum;
+  return isRealCalendarDate ? date : null;
+}
+
+function isValidLeaveDate(input) {
+  return parseLeaveDate(input) !== null;
 }
 
 // Placeholder ke liye ek real, aage ki date dikhate hain (hardcoded saal
@@ -126,7 +141,7 @@ export default function Support() {
       setRequestType("welfare");
       Alert.alert("Request Sent", "Your support request has been submitted to your welfare officer.");
     } catch (error) {
-      Alert.alert("Something went wrong", "Please try again in a moment.");
+      Alert.alert("Something went wrong", error.message || "Please try again in a moment.");
     } finally {
       setIsSubmittingRequest(false);
     }
@@ -137,11 +152,17 @@ export default function Support() {
       Alert.alert("Missing details", "Please fill in the dates and a reason for leave.");
       return;
     }
-    if (!isValidLeaveDate(leaveFromDate) || !isValidLeaveDate(leaveToDate)) {
+    const fromDate = parseLeaveDate(leaveFromDate);
+    const toDate = parseLeaveDate(leaveToDate);
+    if (!fromDate || !toDate) {
       Alert.alert(
         "Check the date format",
         `Please enter dates exactly like "${exampleLeaveDate(7)}" (date, month, year).`,
       );
+      return;
+    }
+    if (toDate < fromDate) {
+      Alert.alert("Check your dates", "The 'To' date can't be before the 'From' date.");
       return;
     }
 
@@ -161,7 +182,7 @@ export default function Support() {
       setLeaveReason("");
       Alert.alert("Leave Requested", "Your leave request has been sent to your admin for approval.");
     } catch (error) {
-      Alert.alert("Something went wrong", "Please try again in a moment.");
+      Alert.alert("Something went wrong", error.message || "Please try again in a moment.");
     } finally {
       setIsSubmittingLeave(false);
     }

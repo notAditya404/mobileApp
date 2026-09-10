@@ -66,7 +66,7 @@ export default function Wellness() {
   }
 
   const { score, status, riskLevel, description, lastUpdated, pillars, influencingFactors, trend } = data;
-  const maxTrendPoint = Math.max(...trend.points);
+  const maxTrendPoint = Math.max(1, ...trend.points);
 
   return (
     <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>

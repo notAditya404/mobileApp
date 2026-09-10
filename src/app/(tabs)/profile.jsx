@@ -83,7 +83,7 @@ export default function Profile() {
           <View className="flex-row items-center">
             <View className="w-16 h-16 rounded-full bg-blue-600 items-center justify-center mr-3">
               <Text className="text-white text-xl font-bold">
-                {fullName.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+                {fullName.split(" ").filter(Boolean).map((w) => w[0]).slice(0, 2).join("")}
               </Text>
             </View>
             <View className="flex-1">
